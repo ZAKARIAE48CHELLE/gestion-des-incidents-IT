@@ -14,6 +14,15 @@ public class Affectation {
     @Column(name = "incident_id", nullable = false)
     private Long incidentId;
 
+    @Column(name = "incident_titre")
+    private String incidentTitre;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "equipement_id")
+    private Long equipementId;
+
     @Column(name = "technicien_id", nullable = false)
     private Long technicienId;
 
@@ -44,6 +53,15 @@ public class Affectation {
 
     public Long getIncidentId() { return incidentId; }
     public void setIncidentId(Long incidentId) { this.incidentId = incidentId; }
+
+    public String getIncidentTitre() { return incidentTitre; }
+    public void setIncidentTitre(String incidentTitre) { this.incidentTitre = incidentTitre; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public Long getEquipementId() { return equipementId; }
+    public void setEquipementId(Long equipementId) { this.equipementId = equipementId; }
 
     public Long getTechnicienId() { return technicienId; }
     public void setTechnicienId(Long technicienId) { this.technicienId = technicienId; }

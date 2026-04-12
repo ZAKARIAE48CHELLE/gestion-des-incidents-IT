@@ -50,6 +50,9 @@ public class AffectationService {
         // 3. Persist
         Affectation affectation = new Affectation();
         affectation.setIncidentId(request.getIncidentId());
+        affectation.setIncidentTitre(incident.getTitre());
+        affectation.setDescription(incident.getDescription());
+        affectation.setEquipementId(incident.getEquipementId());
         affectation.setTechnicienId(request.getTechnicienId());
         affectation.setEquipeId(request.getEquipeId());
         affectation.setStatut(StatutAffectation.EN_ATTENTE);
@@ -68,6 +71,20 @@ public class AffectationService {
     }
 
     // ─── READ ────────────────────────────────────────────────────────────────────
+
+    public List<IncidentDto> getIncidentsToAssign() {
+        List<IncidentDto> incidents = incidentClient.getPanneIncidents();
+        
+        // Récupérer les IDs des incidents déjà affectés dans MS2
+        java.util.Set<Long> affectedIds = repository.findAll().stream()
+                .map(Affectation::getIncidentId)
+                .collect(Collectors.toSet());
+                
+        // Ne renvoyer que les incidents non affectés
+        return incidents.stream()
+                .filter(i -> !affectedIds.contains(i.getId()))
+                .collect(Collectors.toList());
+    }
 
     public List<AffectationResponse> getAll() {
         return repository.findAll().stream()
@@ -165,6 +182,9 @@ public class AffectationService {
         return AffectationResponse.builder()
                 .id(a.getId())
                 .incidentId(a.getIncidentId())
+                .incidentTitre(a.getIncidentTitre())
+                .description(a.getDescription())
+                .equipementId(a.getEquipementId())
                 .technicienId(a.getTechnicienId())
                 .equipeId(a.getEquipeId())
                 .statut(a.getStatut())

@@ -44,7 +44,7 @@ public class LocalSimulationSupport {
         dto.setDescription("Simulation locale MS2 sans dependance a MS1.");
         dto.setPriorite(id % 2 == 0 ? "HAUTE" : "MOYENNE");
         dto.setCategorie(id % 2 == 0 ? "Reseau" : "Poste de travail");
-        dto.setStatut("OUVERT");
+        dto.setStatut("EN_PANNE");
         dto.setDemandeurId(100L + id);
         dto.setEquipementId(200L + id);
         return dto;

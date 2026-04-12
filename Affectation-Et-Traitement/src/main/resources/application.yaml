@@ -22,7 +22,7 @@ spring:
 
 # URLs des autres microservices (injectées par Docker Compose en prod)
 ms1:
-  url: ${MS1_URL:http://localhost:8081}
+  url: ${MS1_URL:https://flakily-rotunda-skid.ngrok-free.dev}
 
 ms3:
   url: ${MS3_URL:http://localhost:8083}
@@ -40,5 +40,5 @@ springdoc:
 app:
   simulation:
     enabled: true
-    incident-ids: 1,2,3,7,42
+    # incident-ids: 1,2,3,7,42
     technician-ids: 2,3,5,8

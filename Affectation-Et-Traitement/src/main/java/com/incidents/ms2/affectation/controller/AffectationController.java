@@ -36,6 +36,12 @@ public class AffectationController {
         return ResponseEntity.ok(service.getAll());
     }
 
+    @GetMapping("/incidents/a-affecter")
+    @Operation(summary = "Obtenir les incidents à affecter (EN_PANNE) depuis MS1")
+    public ResponseEntity<List<IncidentDto>> getIncidentsOuverts() {
+        return ResponseEntity.ok(service.getIncidentsToAssign());
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Obtenir une affectation par ID")
     public ResponseEntity<AffectationResponse> getById(@PathVariable Long id) {

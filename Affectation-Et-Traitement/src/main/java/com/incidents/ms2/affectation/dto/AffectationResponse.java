@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 public class AffectationResponse {
     private Long id;
     private Long incidentId;
+    private String incidentTitre;
+    private String description;
+    private Long equipementId;
     private Long technicienId;
     private Long equipeId;
     private StatutAffectation statut;
@@ -22,6 +25,9 @@ public class AffectationResponse {
 
         public Builder id(Long v)                       { obj.id = v; return this; }
         public Builder incidentId(Long v)               { obj.incidentId = v; return this; }
+        public Builder incidentTitre(String v)          { obj.incidentTitre = v; return this; }
+        public Builder description(String v)            { obj.description = v; return this; }
+        public Builder equipementId(Long v)             { obj.equipementId = v; return this; }
         public Builder technicienId(Long v)             { obj.technicienId = v; return this; }
         public Builder equipeId(Long v)                 { obj.equipeId = v; return this; }
         public Builder statut(StatutAffectation v)      { obj.statut = v; return this; }
@@ -36,6 +42,9 @@ public class AffectationResponse {
 
     public Long getId() { return id; }
     public Long getIncidentId() { return incidentId; }
+    public String getIncidentTitre() { return incidentTitre; }
+    public String getDescription() { return description; }
+    public Long getEquipementId() { return equipementId; }
     public Long getTechnicienId() { return technicienId; }
     public Long getEquipeId() { return equipeId; }
     public StatutAffectation getStatut() { return statut; }
