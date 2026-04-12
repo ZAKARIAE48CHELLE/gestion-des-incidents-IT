@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  ms3-db:
+    image: mysql:8.0
+    container_name: ms3-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms3_users
+    ports:
+      - "3307:3306"
+    networks:
+      - ms3-network
+
+  ms3-app:
+    build: .
+    container_name: ms3-utilisateurs
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://ms3-db:3306/ms3_users?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - ms3-db
+    networks:
+      - ms3-network
+
+networks:
+  ms3-network:
+    driver: bridge
