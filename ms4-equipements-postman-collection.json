@@ -1,0 +1,113 @@
+{
+  "info": {
+    "name": "MS4 - Equipements & Ressources IT",
+    "description": "Collection de tests pour le microservice MS4",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "CATEGORIES",
+      "item": [
+        {
+          "name": "Créer une catégorie",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "http://localhost:8084/api/categories"},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Réseau\",\n  \"description\": \"Équipements réseau : switches, routeurs\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Lister toutes les catégories",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8084/api/categories"}
+          }
+        },
+        {
+          "name": "Détail d'une catégorie",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8084/api/categories/1"}
+          }
+        }
+      ]
+    },
+    {
+      "name": "EQUIPEMENTS",
+      "item": [
+        {
+          "name": "Créer un équipement",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "http://localhost:8084/api/equipements"},
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Switch-Salle-A\",\n  \"type\": \"Switch 24 ports\",\n  \"localisation\": \"Salle A - Armoire 1\",\n  \"adresseIp\": \"192.168.1.1\",\n  \"statut\": \"OPERATIONNEL\",\n  \"dateInstallation\": \"2022-01-15\",\n  \"categorieId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Lister tous les équipements",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8084/api/equipements"}
+          }
+        },
+        {
+          "name": "Détail d'un équipement",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8084/api/equipements/1"}
+          }
+        },
+        {
+          "name": "⭐ Vérifier existence équipement (appelé par MS1)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8084/api/equipements/1/exists"}
+          }
+        },
+        {
+          "name": "⭐ Vérifier équipement inexistant (doit retourner false)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8084/api/equipements/999/exists"}
+          }
+        },
+        {
+          "name": "Changer statut en EN_PANNE",
+          "request": {
+            "method": "PUT",
+            "url": {"raw": "http://localhost:8084/api/equipements/1/statut?statut=EN_PANNE"}
+          }
+        },
+        {
+          "name": "Changer statut en MAINTENANCE",
+          "request": {
+            "method": "PUT",
+            "url": {"raw": "http://localhost:8084/api/equipements/1/statut?statut=MAINTENANCE"}
+          }
+        },
+        {
+          "name": "Changer statut en OPERATIONNEL",
+          "request": {
+            "method": "PUT",
+            "url": {"raw": "http://localhost:8084/api/equipements/1/statut?statut=OPERATIONNEL"}
+          }
+        },
+        {
+          "name": "Filtrer équipements par statut",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8084/api/equipements/statut/OPERATIONNEL"}
+          }
+        }
+      ]
+    }
+  ]
+}

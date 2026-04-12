@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS4 - Dashboard Équipements IT</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+
+  .navbar {
+    background: #1a3a5c;
+    color: white;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .navbar h1 { font-size: 20px; font-weight: 600; }
+  .navbar span { font-size: 13px; opacity: 0.7; }
+  .btn-refresh {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .btn-refresh:hover { background: rgba(255,255,255,0.25); }
+
+  .container { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    border-left: 4px solid #ccc;
+  }
+  .stat-card.total { border-left-color: #1a3a5c; }
+  .stat-card.green { border-left-color: #28a745; }
+  .stat-card.red { border-left-color: #dc3545; }
+  .stat-card.orange { border-left-color: #fd7e14; }
+  .stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .stat-value { font-size: 36px; font-weight: 700; color: #1a3a5c; }
+  .stat-pct { font-size: 13px; color: #888; margin-top: 4px; }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .chart-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .chart-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a3a5c;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .table-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  .table-title { font-size: 15px; font-weight: 600; color: #1a3a5c; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #eee;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; color: #444; }
+  tr:hover td { background: #f8f9fa; }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  .badge-green { background: #d4edda; color: #155724; }
+  .badge-red { background: #f8d7da; color: #721c24; }
+  .badge-orange { background: #fff3cd; color: #856404; }
+
+  .btn-statut {
+    background: #1a3a5c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .btn-statut:hover { background: #2a5a8c; }
+
+  .statut-form {
+    display: none;
+    margin-top: 6px;
+    gap: 6px;
+    align-items: center;
+  }
+  .statut-form.open { display: flex; }
+  .statut-form select {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .btn-save {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .btn-cancel {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .loading {
+    text-align: center;
+    color: #888;
+    padding: 40px;
+    font-size: 14px;
+  }
+  .error-msg {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .success-msg {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    display: none;
+  }
+  .last-update { font-size: 12px; color: #888; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div>
+    <h1>MS4 — Équipements & Ressources IT</h1>
+    <span>Tableau de bord de gestion du parc informatique</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="last-update" id="lastUpdate"></span>
+    <button class="btn-refresh" onclick="loadAll()">Actualiser</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="errorMsg" class="error-msg" style="display:none;"></div>
+  <div id="successMsg" class="success-msg"></div>
+
+  <div class="stats-grid">
+    <div class="stat-card total">
+      <div class="stat-label">Total équipements</div>
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-pct">parc informatique complet</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Opérationnels</div>
+      <div class="stat-value" id="statOp">—</div>
+      <div class="stat-pct" id="pctOp">—</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">En panne</div>
+      <div class="stat-value" id="statPanne">—</div>
+      <div class="stat-pct" id="pctPanne">—</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-label">En maintenance</div>
+      <div class="stat-value" id="statMaint">—</div>
+      <div class="stat-pct" id="pctMaint">—</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">Répartition par statut</div>
+      <div style="position:relative;height:220px;">
+        <canvas id="donutChart" role="img" aria-label="Répartition des équipements par statut">Chargement...</canvas>
+      </div>
+      <div id="donutLegend" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:12px;color:#666;"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Équipements par catégorie</div>
+      <div style="position:relative;height:220px;">
+        <canvas id="barChart" role="img" aria-label="Nombre d'équipements par catégorie">Chargement...</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">Liste des équipements</div>
+      <div style="font-size:12px;color:#888;" id="tableCount"></div>
+    </div>
+    <div id="tableContent"><div class="loading">Chargement des équipements...</div></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = (function () {
+  if (window.location.protocol === 'file:') {
+    return 'http://localhost:8084';
+  }
+  const host = window.location.host;
+  if (!host) {
+    return 'http://localhost:8084';
+  }
+  return window.location.protocol + '//' + host;
+})();
+let donutChart = null;
+let barChart = null;
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+
+function showSuccess(msg) {
+  const el = document.getElementById('successMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch(API_BASE + '/api/equipements/stats');
+    if (!res.ok) {
+      throw new Error('HTTP ' + res.status + ' sur /api/equipements/stats');
+    }
+    const s = await res.json();
+    document.getElementById('statTotal').textContent = s.totalEquipements;
+    document.getElementById('statOp').textContent = s.operationnels;
+    document.getElementById('pctOp').textContent = s.pourcentageOperationnel + '% du parc';
+    document.getElementById('statPanne').textContent = s.enPanne;
+    document.getElementById('pctPanne').textContent = s.pourcentageEnPanne + '% du parc';
+    document.getElementById('statMaint').textContent = s.enMaintenance;
+    document.getElementById('pctMaint').textContent = s.pourcentageMaintenance + '% du parc';
+
+    const colors = ['#28a745', '#dc3545', '#fd7e14'];
+    const labels = ['Opérationnel', 'En panne', 'Maintenance'];
+    const data = [s.operationnels, s.enPanne, s.enMaintenance];
+    const legend = document.getElementById('donutLegend');
+
+    try {
+      if (typeof Chart === 'undefined') {
+        throw new Error('Chart.js non chargé (CDN bloqué ou navigateur intégré)');
+      }
+      if (donutChart) donutChart.destroy();
+      donutChart = new Chart(document.getElementById('donutChart'), {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{ data: data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+      legend.innerHTML = labels.map((l, i) =>
+        `<span style="display:flex;align-items:center;gap:4px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:${colors[i]};display:inline-block;"></span>
+          ${l} (${data[i]})
+        </span>`
+      ).join('');
+    } catch (chartErr) {
+      console.error(chartErr);
+      legend.innerHTML = '<span style="color:#856404;">Graphique donut indisponible. Ouvrez <strong>http://localhost:8084/dashboard.html</strong> dans Chrome ou Edge (le navigateur intégré d’IDE bloque souvent le CDN Chart.js).</span>';
+    }
+  } catch (e) {
+    console.error(e);
+    showError('Impossible de charger les statistiques : ' + (e.message || e) + '. Vérifiez que l’application tourne et ouvrez l’URL http://localhost:8084/dashboard.html dans un navigateur externe.');
+  }
+}
+
+async function loadEquipements() {
+  try {
+    const res = await fetch(API_BASE + '/api/equipements');
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' sur /api/equipements');
+    const equipements = await res.json();
+
+    document.getElementById('tableCount').textContent = equipements.length + ' équipement(s) trouvé(s)';
+
+    const catCount = {};
+    equipements.forEach(e => {
+      const cat = e.categorie ? e.categorie.nom : 'Sans catégorie';
+      catCount[cat] = (catCount[cat] || 0) + 1;
+    });
+
+    const catLabels = Object.keys(catCount);
+    const catData = Object.values(catCount);
+    const barColors = ['#1a3a5c','#2a5a8c','#3a7abc','#4a9aec','#5abafe'];
+
+    try {
+      if (typeof Chart === 'undefined') {
+        throw new Error('Chart.js non chargé');
+      }
+      if (barChart) barChart.destroy();
+      barChart = new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            label: 'Équipements',
+            data: catData,
+            backgroundColor: catLabels.map((_, i) => barColors[i % barColors.length]),
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+            x: { ticks: { autoSkip: false } }
+          }
+        }
+      });
+    } catch (chartErr) {
+      console.error(chartErr);
+    }
+
+    const badgeClass = s => s === 'OPERATIONNEL' ? 'badge-green' : s === 'EN_PANNE' ? 'badge-red' : 'badge-orange';
+    const badgeLabel = s => s === 'OPERATIONNEL' ? 'Opérationnel' : s === 'EN_PANNE' ? 'En panne' : 'Maintenance';
+
+    const rows = equipements.map(e => `
+      <tr>
+        <td>${e.id}</td>
+        <td><strong>${e.nom}</strong></td>
+        <td>${e.type || '—'}</td>
+        <td>${e.categorie ? e.categorie.nom : '—'}</td>
+        <td>${e.localisation || '—'}</td>
+        <td style="font-family:monospace;font-size:12px;">${e.adresseIp || '—'}</td>
+        <td><span class="badge ${badgeClass(e.statut)}">${badgeLabel(e.statut)}</span></td>
+        <td>${e.dateInstallation || '—'}</td>
+        <td>
+          <button class="btn-statut" onclick="toggleForm(${e.id})">Modifier</button>
+          <div class="statut-form" id="form-${e.id}">
+            <select id="sel-${e.id}">
+              <option value="OPERATIONNEL" ${e.statut==='OPERATIONNEL'?'selected':''}>Opérationnel</option>
+              <option value="EN_PANNE" ${e.statut==='EN_PANNE'?'selected':''}>En panne</option>
+              <option value="MAINTENANCE" ${e.statut==='MAINTENANCE'?'selected':''}>Maintenance</option>
+            </select>
+            <button class="btn-save" onclick="saveStatut(${e.id})">OK</button>
+            <button class="btn-cancel" onclick="toggleForm(${e.id})">X</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    document.getElementById('tableContent').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Nom</th><th>Type</th><th>Catégorie</th>
+            <th>Localisation</th><th>Adresse IP</th><th>Statut</th>
+            <th>Date installation</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch (e) {
+    console.error(e);
+    document.getElementById('tableContent').innerHTML =
+      '<div class="loading">Impossible de charger les équipements : ' + (e.message || e) + '</div>';
+  }
+}
+
+function toggleForm(id) {
+  const form = document.getElementById('form-' + id);
+  form.classList.toggle('open');
+}
+
+async function saveStatut(id) {
+  const statut = document.getElementById('sel-' + id).value;
+  try {
+    const res = await fetch(API_BASE + '/api/equipements/' + id + '/statut?statut=' + statut, { method: 'PUT' });
+    if (!res.ok) throw new Error();
+    showSuccess('Statut mis à jour avec succès !');
+    toggleForm(id);
+    await loadAll();
+  } catch(e) {
+    showError('Erreur lors de la mise à jour du statut.');
+  }
+}
+
+async function loadAll() {
+  await Promise.all([loadStats(), loadEquipements()]);
+  document.getElementById('lastUpdate').textContent =
+    'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR');
+}
+
+loadAll();
+setInterval(loadAll, 30000);
+</script>
+</body>
+</html>
