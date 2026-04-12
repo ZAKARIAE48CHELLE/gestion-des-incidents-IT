@@ -1,4 +1,5 @@
-const apiBase = "/api/affectations";
+const apiRoot = window.__MS2_API_ROOT__ || `${window.location.origin}/api`;
+const apiBase = `${apiRoot}/affectations`;
 
 const state = {
     affectations: []
@@ -98,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function loadSimulationInfo() {
     try {
-        const data = await request("/api/simulation");
+        const data = await request(`${apiRoot}/simulation`);
         if (!data?.enabled) {
             return;
         }

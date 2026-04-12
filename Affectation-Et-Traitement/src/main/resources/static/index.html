@@ -1,264 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MS2 - Affectation & Traitement</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>MS2 API - Affectation & Traitement</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(180deg, #f7f2ea 0%, #efe5d8 100%);
+            color: #22170f;
+            font-family: "Segoe UI", sans-serif;
+        }
+        .card {
+            width: min(720px, calc(100% - 32px));
+            background: rgba(255, 252, 247, 0.95);
+            border: 1px solid rgba(41, 28, 17, 0.1);
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: 0 24px 70px rgba(65, 41, 21, 0.12);
+        }
+        h1 { margin-top: 0; }
+        p, li { line-height: 1.6; color: #6e5a4c; }
+        code { background: rgba(34, 23, 15, 0.08); padding: 2px 6px; border-radius: 999px; }
+        a {
+            display: inline-block;
+            margin-right: 12px;
+            margin-top: 8px;
+            color: #7d2f17;
+            font-weight: 700;
+            text-decoration: none;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="page-shell">
-        <header class="hero">
-            <div class="hero-copy">
-                <p class="eyebrow">Systeme distribue • Microservice MS2</p>
-                <h1>Affectation & traitement des incidents IT</h1>
-                <p class="hero-text">
-                    Interface operationnelle pour suivre le workflow <strong>EN_ATTENTE -> EN_COURS -> BLOQUE / RESOLU
-                        -> CLOTURE</strong>,
-                    declencher les appels REST requis et visualiser les affectations en temps reel.
-                </p>
-                <div class="hero-actions">
-                    <button class="primary-btn" data-scroll-target="creation-section">Nouvelle affectation</button>
-                    <a class="ghost-btn" href="http://localhost:8082/swagger-ui/index.html#/">Swagger UI</a>
-                </div>
-            </div>
-            <div class="hero-side">
-                <div class="mini-card emphasis">
-                    <span class="mini-label">Orchestration MS2</span>
-                    <ul class="service-links">
-                        <li><strong>MS1</strong><span>Recuperation de l'incident</span></li>
-                        <li><strong>MS3</strong><span>Validation du technicien</span></li>
-                        <li><strong>MS5</strong><span>Notification des evenements</span></li>
-                    </ul>
-                </div>
-                <div class="mini-card workflow-card">
-                    <span class="mini-label">Machine a etats</span>
-                    <div class="workflow-track">
-                        <span>EN_ATTENTE</span>
-                        <span>EN_COURS</span>
-                        <span>BLOQUE</span>
-                        <span>RESOLU</span>
-                        <span>CLOTURE</span>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main>
-            <section class="stats-grid" aria-label="Statistiques">
-                <article class="stat-card">
-                    <span class="stat-label">Affectations</span>
-                    <strong id="stat-total">0</strong>
-                    <p>Total en base MS2</p>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-label">En cours</span>
-                    <strong id="stat-active">0</strong>
-                    <p>Dossiers actuellement traites</p>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-label">Bloquees</span>
-                    <strong id="stat-blocked">0</strong>
-                    <p>Requiert reprise ou reassignation</p>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-label">Cloturees</span>
-                    <strong id="stat-closed">0</strong>
-                    <p>Workflow termine</p>
-                </article>
-            </section>
-
-            <section id="simulation-panel" class="panel simulation-panel hidden">
-                <div class="panel-header">
-                    <div>
-                        <p class="panel-kicker">Mode local</p>
-                        <h2>Simulation sans MS1, MS3 et MS5</h2>
-                    </div>
-                    <span class="pill accent">GET /api/simulation</span>
-                </div>
-                <p class="panel-text">
-                    Ce mode simule la validation de l'incident, la validation du technicien et l'enregistrement des
-                    notifications.
-                </p>
-                <div class="simulation-grid">
-                    <article class="simulation-box">
-                        <h3>Incidents valides</h3>
-                        <p id="simulation-incidents">Chargement...</p>
-                    </article>
-                    <article class="simulation-box">
-                        <h3>Techniciens valides</h3>
-                        <p id="simulation-technicians">Chargement...</p>
-                    </article>
-                    <article class="simulation-box simulation-events">
-                        <h3>Evenements locaux MS5</h3>
-                        <div id="simulation-events" class="event-list empty-state">Aucun evenement pour le moment.</div>
-                    </article>
-                </div>
-            </section>
-
-            <section class="panel-grid">
-                <article class="panel" id="creation-section">
-                    <div class="panel-header">
-                        <div>
-                            <p class="panel-kicker">Creation</p>
-                            <h2>Nouvelle affectation</h2>
-                        </div>
-                        <span class="pill neutral">POST /api/affectations</span>
-                    </div>
-                    <p class="panel-text">
-                        Cette action declenche la verification de l'incident dans MS1 et du technicien dans MS3 avant
-                        l'enregistrement.
-                    </p>
-                    <form id="create-form" class="form-grid" onsubmit="event.preventDefault();">
-                        <label>
-                            Incident ID
-                            <input type="number" name="incidentId" min="1" placeholder="Ex: 1" required>
-                        </label>
-                        <label>
-                            Technicien ID
-                            <input type="number" name="technicienId" min="1" placeholder="Ex: 2" required>
-                        </label>
-                        <label>
-                            Equipe ID
-                            <input type="number" name="equipeId" min="1" placeholder="Optionnel">
-                        </label>
-                        <button type="submit" class="primary-btn">Creer l'affectation</button>
-                    </form>
-                </article>
-
-                <article class="panel">
-                    <div class="panel-header">
-                        <div>
-                            <p class="panel-kicker">Recherche</p>
-                            <h2>Historique par incident</h2>
-                        </div>
-                        <span class="pill neutral">GET /api/affectations/incident/{incidentId}</span>
-                    </div>
-                    <p class="panel-text">
-                        Permet de visualiser les reaffectations et le parcours complet d'un incident dans MS2.
-                    </p>
-                    <form id="history-form" class="form-grid compact" onsubmit="event.preventDefault();">
-                        <label>
-                            Incident ID
-                            <input type="number" name="incidentId" min="1" placeholder="Ex: 1" required>
-                        </label>
-                        <button type="submit" class="ghost-btn">Charger l'historique</button>
-                    </form>
-                    <div id="history-results" class="history-results empty-state">
-                        Saisissez un incident pour voir ses affectations.
-                    </div>
-                </article>
-            </section>
-
-            <section class="panel">
-                <div class="panel-header">
-                    <div>
-                        <p class="panel-kicker">Pilotage</p>
-                        <h2>Tableau des affectations</h2>
-                    </div>
-                    <div class="panel-actions">
-                        <span class="pill accent">GET /api/affectations</span>
-                        <button id="refresh-btn" class="ghost-btn" type="button">Actualiser</button>
-                    </div>
-                </div>
-                <p class="panel-text">
-                    Les actions disponibles s'adaptent au statut courant selon la machine a etats definie dans le
-                    walkthrough.
-                </p>
-                <div id="status-banner" class="status-banner" hidden></div>
-                <div id="affectations-grid" class="affectations-grid"></div>
-            </section>
-
-            <section class="panel integration-panel">
-                <div class="panel-header">
-                    <div>
-                        <p class="panel-kicker">Architecture</p>
-                        <h2>Rappels metier importants</h2>
-                    </div>
-                </div>
-                <div class="rules-grid">
-                    <article>
-                        <h3>Contraintes distribuees</h3>
-                        <p>MS2 ne partage aucune base avec les autres services et ne stocke que des IDs cross-service.
-                        </p>
-                    </article>
-                    <article>
-                        <h3>Validations critiques</h3>
-                        <p>Creation bloquee si l'incident n'existe pas dans MS1 ou si le technicien n'est pas valide
-                            dans MS3.</p>
-                    </article>
-                    <article>
-                        <h3>Notifications</h3>
-                        <p>Chaque creation, changement de statut et cloture emet un evenement vers MS5.</p>
-                    </article>
-                    <article>
-                        <h3>Endpoint de cloture</h3>
-                        <p>La transition finale ne passe pas par <code>/statut</code> mais par <code>/cloturer</code>.
-                        </p>
-                    </article>
-                </div>
-            </section>
-        </main>
+    <div class="card">
+        <h1>MS2 - API service</h1>
+        <p>Ce port expose le backend du microservice <strong>Affectation & Traitement</strong>.</p>
+        <p>Le frontend de demonstration est disponible separement pour mieux refleter l'architecture cible :</p>
+        <ul>
+            <li>Demo UI : <code>/demo/index.html</code></li>
+            <li>Swagger : <code>/swagger-ui.html</code> ou <code>/swagger-ui/index.html</code></li>
+            <li>API : <code>/api/affectations</code></li>
+        </ul>
+        <a href="/demo/index.html">Ouvrir la demo UI</a>
+        <a href="/swagger-ui/index.html">Ouvrir Swagger</a>
     </div>
-
-    <template id="affectation-card-template">
-        <article class="affectation-card">
-            <div class="card-top">
-                <div>
-                    <p class="card-id"></p>
-                    <h3 class="card-title"></h3>
-                </div>
-                <span class="pill status-pill"></span>
-            </div>
-
-            <dl class="meta-grid">
-                <div>
-                    <dt>Technicien</dt>
-                    <dd class="technicien"></dd>
-                </div>
-                <div>
-                    <dt>Equipe</dt>
-                    <dd class="equipe"></dd>
-                </div>
-                <div>
-                    <dt>Date affectation</dt>
-                    <dd class="date-affectation"></dd>
-                </div>
-                <div>
-                    <dt>Date fin</dt>
-                    <dd class="date-fin"></dd>
-                </div>
-            </dl>
-
-            <div class="allowed-next">
-                <span>Transitions autorisees</span>
-                <div class="next-list"></div>
-            </div>
-
-            <div class="action-row"></div>
-
-            <form class="closure-form hidden">
-                <label>
-                    Note de cloture
-                    <textarea name="noteCloture" rows="3" placeholder="Ex: Cable remplace, service retabli"></textarea>
-                </label>
-                <label>
-                    Date de fin
-                    <input type="datetime-local" name="dateFin">
-                </label>
-                <div class="closure-actions">
-                    <button type="submit" class="primary-btn">Confirmer la cloture</button>
-                    <button type="button" class="text-btn cancel-closure">Annuler</button>
-                </div>
-            </form>
-
-            <div class="closure-note hidden"></div>
-        </article>
-    </template>
-
-    <script src="/app.js" defer></script>
 </body>
-
 </html>
