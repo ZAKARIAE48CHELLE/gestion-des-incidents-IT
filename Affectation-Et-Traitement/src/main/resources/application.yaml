@@ -1,0 +1,44 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ms2-affectation
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/affectations_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:1708}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# URLs des autres microservices (injectées par Docker Compose en prod)
+ms1:
+  url: ${MS1_URL:http://localhost:8081}
+
+ms3:
+  url: ${MS3_URL:http://localhost:8083}
+
+ms5:
+  url: ${MS5_URL:http://localhost:8085}
+
+# Swagger UI
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
+app:
+  simulation:
+    enabled: true
+    incident-ids: 1,2,3,7,42
+    technician-ids: 2,3,5,8
