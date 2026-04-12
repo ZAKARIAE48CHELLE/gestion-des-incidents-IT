@@ -20,61 +20,80 @@ const statusLabels = {
     CLOTURE: "Cloture"
 };
 
-const createForm = document.querySelector("#create-form");
-const historyForm = document.querySelector("#history-form");
-const historyResults = document.querySelector("#history-results");
-const refreshBtn = document.querySelector("#refresh-btn");
-const affectationsGrid = document.querySelector("#affectations-grid");
-const banner = document.querySelector("#status-banner");
-const template = document.querySelector("#affectation-card-template");
-const simulationPanel = document.querySelector("#simulation-panel");
+let createForm;
+let historyForm;
+let historyResults;
+let refreshBtn;
+let affectationsGrid;
+let banner;
+let template;
+let simulationPanel;
 
-document.querySelectorAll("[data-scroll-target]").forEach((button) => {
-    button.addEventListener("click", () => {
-        const targetId = button.getAttribute("data-scroll-target");
-        document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-});
+document.addEventListener("DOMContentLoaded", () => {
+    createForm = document.querySelector("#create-form");
+    historyForm = document.querySelector("#history-form");
+    historyResults = document.querySelector("#history-results");
+    refreshBtn = document.querySelector("#refresh-btn");
+    affectationsGrid = document.querySelector("#affectations-grid");
+    banner = document.querySelector("#status-banner");
+    template = document.querySelector("#affectation-card-template");
+    simulationPanel = document.querySelector("#simulation-panel");
 
-createForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(createForm);
-    const payload = {
-        incidentId: toNumber(formData.get("incidentId")),
-        technicienId: toNumber(formData.get("technicienId")),
-        equipeId: optionalNumber(formData.get("equipeId"))
-    };
-
-    try {
-        await request(apiBase, {
-            method: "POST",
-            body: JSON.stringify(payload)
+    document.querySelectorAll("[data-scroll-target]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const targetId = button.getAttribute("data-scroll-target");
+            document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
-        createForm.reset();
-        showBanner("Affectation creee avec succes. Les validations MS1/MS3 ont ete executees.", "success");
-        await loadAffectations();
-    } catch (error) {
-        showBanner(error.message, "error");
+    });
+
+    if (createForm) {
+        createForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(createForm);
+            const payload = {
+                incidentId: toNumber(formData.get("incidentId")),
+                technicienId: toNumber(formData.get("technicienId")),
+                equipeId: optionalNumber(formData.get("equipeId"))
+            };
+
+            try {
+                await request(apiBase, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                createForm.reset();
+                showBanner("Affectation creee avec succes. Les validations MS1/MS3 ont ete executees.", "success");
+                await loadAffectations();
+            } catch (error) {
+                showBanner(error.message, "error");
+            }
+        });
     }
-});
 
-historyForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = new FormData(historyForm);
-    const incidentId = toNumber(formData.get("incidentId"));
+    if (historyForm) {
+        historyForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formData = new FormData(historyForm);
+            const incidentId = toNumber(formData.get("incidentId"));
 
-    try {
-        const items = await request(`${apiBase}/incident/${incidentId}`);
-        renderHistory(items, incidentId);
-    } catch (error) {
-        historyResults.className = "history-results empty-state";
-        historyResults.textContent = error.message;
+            try {
+                const items = await request(`${apiBase}/incident/${incidentId}`);
+                renderHistory(items, incidentId);
+            } catch (error) {
+                historyResults.className = "history-results empty-state";
+                historyResults.textContent = error.message;
+            }
+        });
     }
-});
 
-refreshBtn.addEventListener("click", () => {
-    loadAffectations(true);
+    if (refreshBtn) {
+        refreshBtn.addEventListener("click", () => {
+            loadAffectations(true);
+        });
+    }
+
+    loadAffectations();
 });
 
 async function loadSimulationInfo() {
@@ -331,6 +350,9 @@ async function request(url, options = {}) {
 }
 
 function showBanner(message, tone) {
+    if (!banner) {
+        return;
+    }
     banner.hidden = false;
     banner.className = `status-banner ${tone}`;
     banner.textContent = message;
@@ -387,5 +409,3 @@ function localDateTimeInputToApi(value) {
 function joinIds(ids = []) {
     return ids.length ? ids.map((id) => `#${id}`).join(", ") : "Aucun ID configure";
 }
-
-loadAffectations();

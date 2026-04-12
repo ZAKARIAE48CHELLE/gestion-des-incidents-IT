@@ -21,7 +21,7 @@
                 </p>
                 <div class="hero-actions">
                     <button class="primary-btn" data-scroll-target="creation-section">Nouvelle affectation</button>
-                    <a class="ghost-btn" href="/swagger-ui.html">Swagger UI</a>
+                    <a class="ghost-btn" href="http://localhost:8082/swagger-ui/index.html#/">Swagger UI</a>
                 </div>
             </div>
             <div class="hero-side">
@@ -47,8 +47,8 @@
         </header>
 
         <main>
-        <section class="stats-grid" aria-label="Statistiques">
-            <article class="stat-card">
+            <section class="stats-grid" aria-label="Statistiques">
+                <article class="stat-card">
                     <span class="stat-label">Affectations</span>
                     <strong id="stat-total">0</strong>
                     <p>Total en base MS2</p>
@@ -67,37 +67,38 @@
                     <span class="stat-label">Cloturees</span>
                     <strong id="stat-closed">0</strong>
                     <p>Workflow termine</p>
-            </article>
-        </section>
+                </article>
+            </section>
 
-        <section id="simulation-panel" class="panel simulation-panel hidden">
-            <div class="panel-header">
-                <div>
-                    <p class="panel-kicker">Mode local</p>
-                    <h2>Simulation sans MS1, MS3 et MS5</h2>
+            <section id="simulation-panel" class="panel simulation-panel hidden">
+                <div class="panel-header">
+                    <div>
+                        <p class="panel-kicker">Mode local</p>
+                        <h2>Simulation sans MS1, MS3 et MS5</h2>
+                    </div>
+                    <span class="pill accent">GET /api/simulation</span>
                 </div>
-                <span class="pill accent">GET /api/simulation</span>
-            </div>
-            <p class="panel-text">
-                Ce mode simule la validation de l'incident, la validation du technicien et l'enregistrement des notifications.
-            </p>
-            <div class="simulation-grid">
-                <article class="simulation-box">
-                    <h3>Incidents valides</h3>
-                    <p id="simulation-incidents">Chargement...</p>
-                </article>
-                <article class="simulation-box">
-                    <h3>Techniciens valides</h3>
-                    <p id="simulation-technicians">Chargement...</p>
-                </article>
-                <article class="simulation-box simulation-events">
-                    <h3>Evenements locaux MS5</h3>
-                    <div id="simulation-events" class="event-list empty-state">Aucun evenement pour le moment.</div>
-                </article>
-            </div>
-        </section>
+                <p class="panel-text">
+                    Ce mode simule la validation de l'incident, la validation du technicien et l'enregistrement des
+                    notifications.
+                </p>
+                <div class="simulation-grid">
+                    <article class="simulation-box">
+                        <h3>Incidents valides</h3>
+                        <p id="simulation-incidents">Chargement...</p>
+                    </article>
+                    <article class="simulation-box">
+                        <h3>Techniciens valides</h3>
+                        <p id="simulation-technicians">Chargement...</p>
+                    </article>
+                    <article class="simulation-box simulation-events">
+                        <h3>Evenements locaux MS5</h3>
+                        <div id="simulation-events" class="event-list empty-state">Aucun evenement pour le moment.</div>
+                    </article>
+                </div>
+            </section>
 
-        <section class="panel-grid">
+            <section class="panel-grid">
                 <article class="panel" id="creation-section">
                     <div class="panel-header">
                         <div>
@@ -110,7 +111,7 @@
                         Cette action declenche la verification de l'incident dans MS1 et du technicien dans MS3 avant
                         l'enregistrement.
                     </p>
-                    <form id="create-form" class="form-grid">
+                    <form id="create-form" class="form-grid" onsubmit="event.preventDefault();">
                         <label>
                             Incident ID
                             <input type="number" name="incidentId" min="1" placeholder="Ex: 1" required>
@@ -138,7 +139,7 @@
                     <p class="panel-text">
                         Permet de visualiser les reaffectations et le parcours complet d'un incident dans MS2.
                     </p>
-                    <form id="history-form" class="form-grid compact">
+                    <form id="history-form" class="form-grid compact" onsubmit="event.preventDefault();">
                         <label>
                             Incident ID
                             <input type="number" name="incidentId" min="1" placeholder="Ex: 1" required>
