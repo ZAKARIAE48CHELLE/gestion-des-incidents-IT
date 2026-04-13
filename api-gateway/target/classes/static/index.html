@@ -352,7 +352,10 @@
 
     .modal {
       background: var(--card-bg);
-      width: 600px;
+      width: 60vw;
+      height: 80vh;
+      display: flex;
+      flex-direction: column;
       border-radius: 8px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       overflow: hidden;
@@ -402,7 +405,8 @@
       padding: 24px;
       font-size: 0.9rem;
       line-height: 1.5;
-      max-height: 70vh;
+      flex: 1;
+      min-height: 0;
       overflow-y: auto;
     }
 
@@ -442,6 +446,53 @@
     .alert.error {
       background-color: #fee2e2;
       color: #991b1b;
+      display: block;
+    }
+
+    /* Modal Tabs */
+    .tab-buttons {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-mut);
+      cursor: pointer;
+      position: relative;
+      outline: none;
+      transition: color 0.15s;
+    }
+
+    .tab-btn.active {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--color-info);
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: var(--text-main);
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .tab-pane.active {
       display: block;
     }
   </style>
@@ -726,25 +777,93 @@
       const item = currentData.find(i => i.id === id);
       if (!item) return;
 
+      let historyHtml = '';
+      if (item.equipementId) {
+        const history = currentData.filter(i => i.equipementId === item.equipementId).sort((a, b) => b.id - a.id);
+        if (history.length > 1) {
+          const groups = {};
+          history.forEach(h => {
+            const date = new Date(h.dateAffectation);
+            if (isNaN(date)) return;
+            const year = date.getFullYear();
+            const month = date.toLocaleString('fr-FR', { month: 'long' });
+            const m = month.charAt(0).toUpperCase() + month.slice(1);
+            const key = `${m} ${year}`;
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(h);
+          });
+
+          let tablesHtml = '';
+          for (const [key, items] of Object.entries(groups)) {
+            let rows = items.map(h => `
+                  <tr style="border-bottom:1px solid #e2e8f0;">
+                    <td style="padding:8px 12px;font-weight:600;font-size:0.8rem;color:var(--color-info);">#${h.id}</td>
+                    <td style="padding:8px 12px;font-size:0.8rem;">${h.incidentTitre || 'Panne N°' + h.incidentId}</td>
+                    <td style="padding:8px 12px;font-size:0.8rem;color:var(--text-mut);">${fmt(h.dateAffectation)}</td>
+                    <td style="padding:8px 12px;font-size:0.8rem;">Tech-${h.technicienId}</td>
+                    <td style="padding:8px 12px;text-align:right;"><span class="status-pill status-${h.statut.toLowerCase()}" style="font-size:0.6rem;padding:2px 8px;">${h.statut.replace('_', ' ')}</span></td>
+                  </tr>
+                `).join('');
+
+            tablesHtml += `
+                  <div style="margin-bottom: 20px;">
+                    <div style="background:#e2e8f0;padding:6px 12px;border-radius:6px 6px 0 0;font-weight:600;font-size:0.85rem;color:#334155;">📅 ${key}</div>
+                    <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 6px 6px;text-align:left;">
+                      <tbody>${rows}</tbody>
+                    </table>
+                  </div>
+                `;
+          }
+
+          historyHtml = `
+                 <div style="background:#f8fafc;padding:16px;border-radius:8px;border:1px solid var(--border);max-height:280px;overflow-y:auto;">
+                   ${tablesHtml}
+                 </div>
+             `;
+        } else {
+          historyHtml = `
+               <div style="font-size:0.85rem;color:var(--text-mut);font-style:italic;padding:16px;background:#f8fafc;border-radius:6px;">Première intervention enregistrée sur cet équipement.</div>
+             `;
+        }
+      }
+
       $("#modal-title").innerText = `Affectation #${item.id}`;
       $("#modal-body-content").innerHTML = `
-        <div class="detail-row"><span class="detail-label">Statut:</span> <span class="status-pill status-${item.statut.toLowerCase()}">${item.statut.replace('_', ' ')}</span></div>
-        <hr style="border:0;border-top:1px solid var(--border);margin:16px 0;">
-        <div class="detail-row"><span class="detail-label">Incident MS1:</span> <span class="detail-value">#${item.incidentId}</span></div>
-        <div class="detail-row"><span class="detail-label">Titre (Panne):</span> <span class="detail-value"><strong>${item.incidentTitre || incidentMap[item.incidentId] || 'Panne N°' + item.incidentId}</strong></span></div>
-        <div class="detail-row"><span class="detail-label">Équipement ID:</span> <span class="detail-value">${item.equipementId ? 'Eqp-' + item.equipementId : '-'}</span></div>
-        <div class="detail-row" style="flex-direction:column;">
-          <span class="detail-label" style="margin-bottom:6px;">Description détaillée:</span>
-          <div style="background:#f1f5f9;padding:12px;border-radius:6px;border:1px solid #cbd5e1;white-space:pre-wrap;color:#334155;font-family:monospace;font-size:0.85rem;">${item.description || '-'}</div>
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab('tab-current', event)">Détails de l'Affectation</button>
+          <button class="tab-btn" onclick="switchTab('tab-history', event)">Historique d'Équipement</button>
         </div>
-        <hr style="border:0;border-top:1px solid var(--border);margin:16px 0;">
-        <div class="detail-row"><span class="detail-label">Technicien:</span> <span class="detail-value">Tech-${item.technicienId}</span></div>
-        <div class="detail-row"><span class="detail-label">Équipe (MS3):</span> <span class="detail-value">${item.equipeId ? 'Eq-' + item.equipeId : '-'}</span></div>
-        <div class="detail-row"><span class="detail-label">Date Affectation:</span> <span class="detail-value">${fmt(item.dateAffectation)}</span></div>
-        <div class="detail-row"><span class="detail-label">Date Fin:</span> <span class="detail-value">${fmt(item.dateFin)}</span></div>
-        ${item.noteCloture ? `<div class="detail-row"><span class="detail-label">Note Clôture:</span> <div class="detail-value" style="background:#fef08a;padding:8px 12px;border-radius:4px;color:#854d0e;margin-top:4px;">${item.noteCloture}</div></div>` : ''}
+
+        <div id="tab-current" class="tab-pane active">
+          <div class="detail-row"><span class="detail-label">Statut:</span> <span class="status-pill status-${item.statut.toLowerCase()}">${item.statut.replace('_', ' ')}</span></div>
+          <hr style="border:0;border-top:1px solid var(--border);margin:16px 0;">
+          <div class="detail-row"><span class="detail-label">Incident MS1:</span> <span class="detail-value">#${item.incidentId}</span></div>
+          <div class="detail-row"><span class="detail-label">Titre (Panne):</span> <span class="detail-value"><strong>${item.incidentTitre || incidentMap[item.incidentId] || 'Panne N°' + item.incidentId}</strong></span></div>
+          <div class="detail-row"><span class="detail-label">Équipement ID:</span> <span class="detail-value">${item.equipementId ? 'Eqp-' + item.equipementId : '-'}</span></div>
+          <div class="detail-row" style="flex-direction:column;">
+            <span class="detail-label" style="margin-bottom:6px;">Description détaillée:</span>
+            <div style="background:#f1f5f9;padding:12px;border-radius:6px;border:1px solid #cbd5e1;white-space:pre-wrap;color:#334155;font-family:monospace;font-size:0.85rem;">${item.description || '-'}</div>
+          </div>
+          <hr style="border:0;border-top:1px solid var(--border);margin:16px 0;">
+          <div class="detail-row"><span class="detail-label">Technicien:</span> <span class="detail-value">Tech-${item.technicienId}</span></div>
+          <div class="detail-row"><span class="detail-label">Équipe (MS3):</span> <span class="detail-value">${item.equipeId ? 'Eq-' + item.equipeId : '-'}</span></div>
+          <div class="detail-row"><span class="detail-label">Date Affectation:</span> <span class="detail-value">${fmt(item.dateAffectation)}</span></div>
+          <div class="detail-row"><span class="detail-label">Date Fin:</span> <span class="detail-value">${fmt(item.dateFin)}</span></div>
+          ${item.noteCloture ? `<div class="detail-row"><span class="detail-label">Note Clôture:</span> <div class="detail-value" style="background:#fef08a;padding:8px 12px;border-radius:4px;color:#854d0e;margin-top:4px;">${item.noteCloture}</div></div>` : ''}
+        </div>
+
+        <div id="tab-history" class="tab-pane">
+          ${historyHtml || '<div style="font-size:0.85rem;color:var(--text-mut);font-style:italic;">Aucun historique disponible.</div>'}
+        </div>
       `;
       $("#details-modal").classList.remove("hidden");
+    }
+
+    function switchTab(tabId, ev) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      ev.currentTarget.classList.add('active');
     }
 
     function closeModal() {
