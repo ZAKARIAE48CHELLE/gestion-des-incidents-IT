@@ -1,0 +1,276 @@
+{
+  "info": {
+    "_postman_id": "5ed9961d-d07a-4680-8e92-6f94f3261c4b",
+    "name": "MS3 Utilisateurs API",
+    "description": "Postman collection for ms3-utilisateurs Spring Boot service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8083"
+    },
+    {
+      "key": "utilisateurId",
+      "value": "1"
+    },
+    {
+      "key": "equipeId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Utilisateurs",
+      "item": [
+        {
+          "name": "Create Utilisateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Alice Martin\",\n  \"email\": \"alice.martin@example.com\",\n  \"role\": \"ADMIN\",\n  \"equipeId\": {{equipeId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utilisateurs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "utilisateurs"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Utilisateurs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/utilisateurs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "utilisateurs"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Utilisateur By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/utilisateurs/{{utilisateurId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "utilisateurs",
+                "{{utilisateurId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Validate Utilisateur",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/utilisateurs/{{utilisateurId}}/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "utilisateurs",
+                "{{utilisateurId}}",
+                "validate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Utilisateur",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Alice Martin Updated\",\n  \"email\": \"alice.updated@example.com\",\n  \"role\": \"USER\",\n  \"equipeId\": {{equipeId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/utilisateurs/{{utilisateurId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "utilisateurs",
+                "{{utilisateurId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Utilisateur",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/utilisateurs/{{utilisateurId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "utilisateurs",
+                "{{utilisateurId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Equipes",
+      "item": [
+        {
+          "name": "Create Equipe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Equipe Support\",\n  \"responsable\": \"Youssef\",\n  \"description\": \"Equipe chargee du support\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/equipes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "equipes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Equipes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/equipes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "equipes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Equipe By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/equipes/{{equipeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "equipes",
+                "{{equipeId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Equipe Exists",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/equipes/{{equipeId}}/exists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "equipes",
+                "{{equipeId}}",
+                "exists"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Equipe",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Equipe Support Updated\",\n  \"responsable\": \"Youssef Updated\",\n  \"description\": \"Description mise a jour\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/equipes/{{equipeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "equipes",
+                "{{equipeId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Equipe",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/equipes/{{equipeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "equipes",
+                "{{equipeId}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
