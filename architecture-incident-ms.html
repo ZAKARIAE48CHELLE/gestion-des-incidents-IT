@@ -1,747 +1,1298 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Architecture — Système Distribué Incidents IT</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
-<style>
-:root {
-  --bg: #0d0f14;
-  --surface: #13161e;
-  --surface2: #1a1e28;
-  --border: #252938;
-  --border2: #2e3448;
-  --text: #e8eaf0;
-  --muted: #6b7280;
-  --dim: #3d4255;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Architecture — Système Distribué Incidents IT</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e28;
+      --border: #252938;
+      --border2: #2e3448;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --dim: #3d4255;
 
-  --ms1: #3b82f6; --ms1d: #1e3a5f; --ms1s: #60a5fa;
-  --ms2: #22c55e; --ms2d: #14532d; --ms2s: #4ade80;
-  --ms3: #a855f7; --ms3d: #3b0764; --ms3s: #c084fc;
-  --ms4: #f97316; --ms4d: #7c2d12; --ms4s: #fb923c;
-  --ms5: #06b6d4; --ms5d: #164e63; --ms5s: #22d3ee;
+      --ms1: #3b82f6;
+      --ms1d: #1e3a5f;
+      --ms1s: #60a5fa;
+      --ms2: #22c55e;
+      --ms2d: #14532d;
+      --ms2s: #4ade80;
+      --ms3: #a855f7;
+      --ms3d: #3b0764;
+      --ms3s: #c084fc;
+      --ms4: #f97316;
+      --ms4d: #7c2d12;
+      --ms4s: #fb923c;
+      --ms5: #06b6d4;
+      --ms5d: #164e63;
+      --ms5s: #22d3ee;
 
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-sans: 'Sora', sans-serif;
-}
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Sora', sans-serif;
+    }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body {
-  font-family: var(--font-sans);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-/* ── GRID BG ── */
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 40px 40px;
-  opacity: 0.35;
-  pointer-events: none;
-  z-index: 0;
-}
+    /* ── GRID BG ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-/* ── LAYOUT ── */
-.shell {
-  position: relative; z-index: 1;
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  grid-template-rows: 60px 1fr;
-  height: 100vh;
-}
+    /* ── LAYOUT ── */
+    .shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      grid-template-rows: 60px 1fr;
+      height: 100vh;
+    }
 
-/* ── TOPBAR ── */
-.topbar {
-  grid-column: 1/-1;
-  display: flex; align-items: center; gap: 16px;
-  padding: 0 24px;
-  background: rgba(13,15,20,0.95);
-  border-bottom: 1px solid var(--border2);
-  backdrop-filter: blur(8px);
-}
-.topbar-logo {
-  font-family: var(--font-mono);
-  font-weight: 700; font-size: 13px;
-  color: var(--text);
-  letter-spacing: 0.05em;
-}
-.topbar-logo span { color: var(--ms2); }
-.topbar-tags { display: flex; gap: 8px; margin-left: auto; }
-.tag {
-  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
-  padding: 3px 8px; border-radius: 4px;
-  border: 1px solid var(--border2);
-  color: var(--muted);
-}
+    /* ── TOPBAR ── */
+    .topbar {
+      grid-column: 1/-1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 24px;
+      background: rgba(13, 15, 20, 0.95);
+      border-bottom: 1px solid var(--border2);
+      backdrop-filter: blur(8px);
+    }
 
-/* ── SIDEBAR ── */
-.sidebar {
-  background: var(--surface);
-  border-right: 1px solid var(--border2);
-  overflow-y: auto;
-  padding: 16px 0;
-}
-.sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+    .topbar-logo {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+      letter-spacing: 0.05em;
+    }
 
-.sidebar-section { padding: 8px 16px 4px; }
-.sidebar-section-label {
-  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
-  text-transform: uppercase; letter-spacing: 0.1em;
-  color: var(--muted); margin-bottom: 6px;
-}
+    .topbar-logo span {
+      color: var(--ms2);
+    }
 
-.ms-btn {
-  display: flex; align-items: center; gap: 10px;
-  width: 100%; padding: 8px 12px; border-radius: 8px;
-  border: 1px solid transparent;
-  background: transparent; color: var(--text);
-  font-family: var(--font-sans); font-size: 13px;
-  cursor: pointer; transition: all 0.15s; margin-bottom: 2px;
-  text-align: left;
-}
-.ms-btn:hover { background: var(--surface2); border-color: var(--border2); }
-.ms-btn.active { background: var(--surface2); border-color: var(--active-color, var(--border2)); }
-.ms-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--dot-color); flex-shrink: 0;
-}
-.ms-num {
-  font-family: var(--font-mono); font-size: 10px;
-  color: var(--muted); margin-left: auto;
-}
+    .topbar-tags {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
 
-.sidebar-divider { height: 1px; background: var(--border); margin: 12px 16px; }
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border2);
+      color: var(--muted);
+    }
 
-.view-btn {
-  display: flex; align-items: center; gap: 8px;
-  width: 100%; padding: 7px 12px; border-radius: 6px;
-  border: none; background: transparent; color: var(--muted);
-  font-family: var(--font-sans); font-size: 12px;
-  cursor: pointer; transition: all 0.15s; margin-bottom: 2px;
-  text-align: left;
-}
-.view-btn:hover { color: var(--text); background: var(--surface2); }
-.view-btn.active { color: var(--text); background: var(--surface2); }
-.view-icon { font-size: 14px; }
+    /* ── SIDEBAR ── */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border2);
+      overflow-y: auto;
+      padding: 16px 0;
+    }
 
-/* ── MAIN ── */
-.main {
-  overflow-y: auto; position: relative;
-}
-.main::-webkit-scrollbar { width: 6px; }
-.main::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
 
-/* ── PANELS ── */
-.panel { display: none; padding: 28px 32px; }
-.panel.active { display: block; }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 2px;
+    }
 
-/* ── OVERVIEW PANEL ── */
-.overview-header { margin-bottom: 28px; }
-.overview-header h1 {
-  font-size: 22px; font-weight: 700; color: var(--text);
-  margin-bottom: 6px;
-}
-.overview-header p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .sidebar-section {
+      padding: 8px 16px 4px;
+    }
 
-/* Global arch diagram */
-.arch-diagram {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 14px;
-  padding: 28px;
-  margin-bottom: 28px;
-  position: relative;
-}
-.arch-diagram h3 {
-  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
-  text-transform: uppercase; letter-spacing: 0.1em;
-  color: var(--muted); margin-bottom: 20px;
-}
+    .sidebar-section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
 
-.arch-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto auto auto;
-  gap: 12px;
-  align-items: start;
-}
+    .ms-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+      text-align: left;
+    }
 
-.ms-card {
-  border-radius: 10px;
-  border: 1px solid var(--card-border, var(--border2));
-  background: var(--card-bg, var(--surface2));
-  padding: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-.ms-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--card-accent);
-  border-radius: 10px 10px 0 0;
-}
-.ms-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .ms-btn:hover {
+      background: var(--surface2);
+      border-color: var(--border2);
+    }
 
-.ms-card-num {
-  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
-  color: var(--card-accent);
-  margin-bottom: 6px; letter-spacing: 0.05em;
-}
-.ms-card-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
-.ms-card-sub { font-size: 11px; color: var(--muted); line-height: 1.5; }
-.ms-card-port {
-  font-family: var(--font-mono); font-size: 10px;
-  color: var(--card-accent); margin-top: 8px;
-  padding: 2px 6px; border-radius: 4px;
-  background: var(--card-bg2, rgba(0,0,0,0.3));
-  display: inline-block;
-}
+    .ms-btn.active {
+      background: var(--surface2);
+      border-color: var(--active-color, var(--border2));
+    }
 
-/* center MS5 in row 3 */
-.ms-card-center { grid-column: 2; }
+    .ms-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--dot-color);
+      flex-shrink: 0;
+    }
 
-/* arrows between cards (pure CSS with pseudos) */
-.arch-arrows {
-  position: absolute; inset: 0; pointer-events: none;
-}
+    .ms-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-left: auto;
+    }
 
-/* comms legend */
-.comms-row {
-  display: flex; gap: 16px; flex-wrap: wrap;
-  margin-top: 16px; padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-.comm-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
-.comm-line { width: 24px; height: 2px; border-radius: 1px; }
-.comm-line.rest { background: var(--ms1); }
-.comm-line.event { background: var(--ms5); border-top: 2px dashed var(--ms5); background: none; height: 0; }
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 16px;
+    }
 
-/* ── FILE TREE PANEL ── */
-.file-tree { font-family: var(--font-mono); font-size: 12px; }
-.tree-root { margin-bottom: 24px; }
-.tree-project-label {
-  font-size: 13px; font-weight: 700; color: var(--text);
-  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-}
-.tree-project-label .badge {
-  font-size: 10px; padding: 2px 6px; border-radius: 4px;
-  background: var(--surface2); color: var(--muted); border: 1px solid var(--border2);
-}
+    .view-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+      text-align: left;
+    }
 
-.tree-item {
-  display: flex; align-items: center; gap: 0;
-  padding: 2px 0; cursor: pointer;
-  transition: color 0.1s;
-}
-.tree-item:hover .tree-name { color: var(--text); }
-.tree-indent { display: inline-block; }
-.tree-icon { color: var(--muted); margin-right: 6px; font-size: 11px; width: 12px; }
-.tree-name { color: var(--muted); font-size: 12px; }
-.tree-name.folder { color: var(--text); font-weight: 500; }
-.tree-name.java { color: #f97316; }
-.tree-name.yml { color: #22c55e; }
-.tree-name.xml { color: #a855f7; }
-.tree-name.sql { color: #06b6d4; }
-.tree-name.props { color: #f59e0b; }
-.tree-name.docker { color: #3b82f6; }
-.tree-name.md { color: #6b7280; }
-.tree-comment { color: var(--dim); font-size: 10px; margin-left: 8px; }
-.tree-ms-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 0 4px;
-  font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  cursor: pointer;
-}
-.tree-ms-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 18px; height: 18px; border-radius: 4px;
-  font-size: 9px; font-weight: 700;
-  flex-shrink: 0;
-}
+    .view-btn:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
 
-/* ── MS DETAIL PANEL ── */
-.detail-header {
-  display: flex; align-items: flex-start; gap: 16px;
-  margin-bottom: 24px;
-}
-.detail-badge {
-  width: 48px; height: 48px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-mono); font-size: 16px; font-weight: 700;
-  flex-shrink: 0;
-}
-.detail-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-.detail-sub { font-size: 13px; color: var(--muted); line-height: 1.5; }
-.detail-port {
-  font-family: var(--font-mono); font-size: 11px;
-  padding: 3px 8px; border-radius: 5px;
-  margin-left: auto; flex-shrink: 0;
-}
+    .view-btn.active {
+      color: var(--text);
+      background: var(--surface2);
+    }
 
-.section-label {
-  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.12em;
-  color: var(--muted); margin-bottom: 12px;
-  padding-bottom: 6px; border-bottom: 1px solid var(--border);
-}
+    .view-icon {
+      font-size: 14px;
+    }
 
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-.detail-card {
-  background: var(--surface2); border: 1px solid var(--border2);
-  border-radius: 10px; padding: 16px;
-}
-.detail-card h4 { font-size: 12px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
+    /* ── MAIN ── */
+    .main {
+      overflow-y: auto;
+      position: relative;
+    }
 
-/* endpoint list */
-.ep-list { list-style: none; }
-.ep-item {
-  display: flex; align-items: flex-start; gap: 8px;
-  padding: 6px 0; border-bottom: 1px solid var(--border);
-  font-size: 12px;
-}
-.ep-item:last-child { border-bottom: none; }
-.ep-method {
-  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
-  padding: 2px 5px; border-radius: 3px;
-  flex-shrink: 0; margin-top: 1px;
-}
-.ep-method.get  { background: #1e3a5f; color: #60a5fa; }
-.ep-method.post { background: #14532d; color: #4ade80; }
-.ep-method.put  { background: #7c2d12; color: #fb923c; }
-.ep-method.del  { background: #450a0a; color: #f87171; }
-.ep-path { font-family: var(--font-mono); font-size: 11px; color: var(--text); margin-bottom: 2px; }
-.ep-desc { font-size: 11px; color: var(--muted); }
+    .main::-webkit-scrollbar {
+      width: 6px;
+    }
 
-/* db schema */
-.db-table {
-  background: var(--surface); border: 1px solid var(--border2);
-  border-radius: 8px; overflow: hidden; margin-bottom: 12px; font-size: 12px;
-}
-.db-table-header {
-  padding: 8px 12px;
-  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
-  display: flex; align-items: center; gap: 8px;
-}
-.db-table-icon { font-size: 12px; }
-.db-field {
-  display: flex; align-items: center; gap: 8px;
-  padding: 5px 12px; border-top: 1px solid var(--border);
-}
-.db-field-name { font-family: var(--font-mono); font-size: 11px; color: var(--text); }
-.db-field-type {
-  font-family: var(--font-mono); font-size: 10px;
-  color: var(--ms5); margin-left: auto;
-}
-.db-field-key {
-  font-family: var(--font-mono); font-size: 9px;
-  padding: 1px 4px; border-radius: 3px;
-  background: rgba(250,196,22,0.15); color: #fbbf24;
-}
-.db-field-fk {
-  font-family: var(--font-mono); font-size: 9px;
-  padding: 1px 4px; border-radius: 3px;
-  background: rgba(168,85,247,0.15); color: #c084fc;
-}
+    .main::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px;
+    }
 
-/* comms list */
-.comm-list { list-style: none; }
-.comm-entry {
-  display: flex; align-items: flex-start; gap: 8px;
-  padding: 8px 10px; border-radius: 7px;
-  background: var(--surface); border: 1px solid var(--border);
-  margin-bottom: 6px; font-size: 12px;
-}
-.comm-arrow { font-size: 14px; flex-shrink: 0; }
-.comm-target { font-weight: 600; color: var(--text); margin-bottom: 2px; }
-.comm-desc { color: var(--muted); font-size: 11px; }
+    /* ── PANELS ── */
+    .panel {
+      display: none;
+      padding: 28px 32px;
+    }
 
-/* code block */
-.code-block {
-  background: #0a0c10;
-  border: 1px solid var(--border2);
-  border-radius: 10px; overflow: hidden;
-  margin-bottom: 24px;
-}
-.code-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 16px;
-  background: var(--surface); border-bottom: 1px solid var(--border2);
-}
-.code-dots { display: flex; gap: 5px; }
-.code-dot { width: 10px; height: 10px; border-radius: 50%; }
-.code-dot.r { background: #ff5f57; }
-.code-dot.y { background: #febc2e; }
-.code-dot.g { background: #28c840; }
-.code-filename {
-  font-family: var(--font-mono); font-size: 11px;
-  color: var(--muted); margin-left: 8px;
-}
-.code-lang {
-  font-family: var(--font-mono); font-size: 10px;
-  color: var(--dim); margin-left: auto;
-}
-.code-body {
-  padding: 16px;
-  font-family: var(--font-mono); font-size: 11px; line-height: 1.7;
-  overflow-x: auto; color: #a0aec0;
-  white-space: pre;
-}
-.kw { color: #c084fc; }
-.cl { color: #60a5fa; }
-.an { color: #4ade80; }
-.st { color: #fb923c; }
-.cm { color: #4b5563; }
-.num { color: #22d3ee; }
+    .panel.active {
+      display: block;
+    }
 
-/* tabs */
-.tabs { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
-.tab {
-  padding: 8px 16px; border-radius: 6px 6px 0 0;
-  font-size: 12px; cursor: pointer; border: none;
-  background: transparent; color: var(--muted);
-  font-family: var(--font-sans);
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px; transition: all 0.15s;
-}
-.tab:hover { color: var(--text); }
-.tab.active { color: var(--text); border-bottom-color: var(--active-tab-color, #fff); }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+    /* ── OVERVIEW PANEL ── */
+    .overview-header {
+      margin-bottom: 28px;
+    }
 
-/* docker panel */
-.docker-compose {
-  background: #0a0c10; border: 1px solid var(--border2);
-  border-radius: 10px; overflow: hidden;
-}
-.docker-header {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 16px; background: var(--surface2);
-  border-bottom: 1px solid var(--border2);
-}
-.docker-header-title { font-family: var(--font-mono); font-size: 12px; color: var(--ms1); font-weight: 600; }
-.docker-body {
-  padding: 16px; font-family: var(--font-mono);
-  font-size: 11px; line-height: 1.8; color: #8892a4;
-  white-space: pre; overflow-x: auto;
-}
-.dk-key { color: #60a5fa; }
-.dk-val { color: #fb923c; }
-.dk-cmt { color: #374151; }
-.dk-str { color: #4ade80; }
-.dk-num { color: #22d3ee; }
+    .overview-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
 
-/* responsive */
-@media (max-width: 768px) {
-  .shell { grid-template-columns: 1fr; grid-template-rows: 60px auto 1fr; }
-  .sidebar { grid-row: 2; border-right: none; border-bottom: 1px solid var(--border2); max-height: 200px; }
-  .detail-grid { grid-template-columns: 1fr; }
-}
-</style>
+    .overview-header p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* Global arch diagram */
+    .arch-diagram {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .arch-diagram h3 {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .ms-card {
+      border-radius: 10px;
+      border: 1px solid var(--card-border, var(--border2));
+      background: var(--card-bg, var(--surface2));
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .ms-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--card-accent);
+      border-radius: 10px 10px 0 0;
+    }
+
+    .ms-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .ms-card-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--card-accent);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .ms-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .ms-card-sub {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .ms-card-port {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--card-accent);
+      margin-top: 8px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--card-bg2, rgba(0, 0, 0, 0.3));
+      display: inline-block;
+    }
+
+    /* center MS5 in row 3 */
+    .ms-card-center {
+      grid-column: 2;
+    }
+
+    /* arrows between cards (pure CSS with pseudos) */
+    .arch-arrows {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* comms legend */
+    .comms-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .comm-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .comm-line {
+      width: 24px;
+      height: 2px;
+      border-radius: 1px;
+    }
+
+    .comm-line.rest {
+      background: var(--ms1);
+    }
+
+    .comm-line.event {
+      background: var(--ms5);
+      border-top: 2px dashed var(--ms5);
+      background: none;
+      height: 0;
+    }
+
+    /* ── FILE TREE PANEL ── */
+    .file-tree {
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .tree-root {
+      margin-bottom: 24px;
+    }
+
+    .tree-project-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tree-project-label .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border2);
+    }
+
+    .tree-item {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 2px 0;
+      cursor: pointer;
+      transition: color 0.1s;
+    }
+
+    .tree-item:hover .tree-name {
+      color: var(--text);
+    }
+
+    .tree-indent {
+      display: inline-block;
+    }
+
+    .tree-icon {
+      color: var(--muted);
+      margin-right: 6px;
+      font-size: 11px;
+      width: 12px;
+    }
+
+    .tree-name {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tree-name.folder {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .tree-name.java {
+      color: #f97316;
+    }
+
+    .tree-name.yml {
+      color: #22c55e;
+    }
+
+    .tree-name.xml {
+      color: #a855f7;
+    }
+
+    .tree-name.sql {
+      color: #06b6d4;
+    }
+
+    .tree-name.props {
+      color: #f59e0b;
+    }
+
+    .tree-name.docker {
+      color: #3b82f6;
+    }
+
+    .tree-name.md {
+      color: #6b7280;
+    }
+
+    .tree-comment {
+      color: var(--dim);
+      font-size: 10px;
+      margin-left: 8px;
+    }
+
+    .tree-ms-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+    }
+
+    .tree-ms-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── MS DETAIL PANEL ── */
+    .detail-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .detail-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .detail-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .detail-sub {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .detail-port {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .detail-card {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .detail-card h4 {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    /* endpoint list */
+    .ep-list {
+      list-style: none;
+    }
+
+    .ep-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .ep-item:last-child {
+      border-bottom: none;
+    }
+
+    .ep-method {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .ep-method.get {
+      background: #1e3a5f;
+      color: #60a5fa;
+    }
+
+    .ep-method.post {
+      background: #14532d;
+      color: #4ade80;
+    }
+
+    .ep-method.put {
+      background: #7c2d12;
+      color: #fb923c;
+    }
+
+    .ep-method.del {
+      background: #450a0a;
+      color: #f87171;
+    }
+
+    .ep-path {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .ep-desc {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* db schema */
+    .db-table {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      font-size: 12px;
+    }
+
+    .db-table-header {
+      padding: 8px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .db-table-icon {
+      font-size: 12px;
+    }
+
+    .db-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .db-field-name {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .db-field-type {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ms5);
+      margin-left: auto;
+    }
+
+    .db-field-key {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background: rgba(250, 196, 22, 0.15);
+      color: #fbbf24;
+    }
+
+    .db-field-fk {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+    }
+
+    /* comms list */
+    .comm-list {
+      list-style: none;
+    }
+
+    .comm-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 7px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .comm-arrow {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .comm-target {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .comm-desc {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* code block */
+    .code-block {
+      background: #0a0c10;
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .code-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .code-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .code-dot.r {
+      background: #ff5f57;
+    }
+
+    .code-dot.y {
+      background: #febc2e;
+    }
+
+    .code-dot.g {
+      background: #28c840;
+    }
+
+    .code-filename {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 8px;
+    }
+
+    .code-lang {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--dim);
+      margin-left: auto;
+    }
+
+    .code-body {
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.7;
+      overflow-x: auto;
+      color: #a0aec0;
+      white-space: pre;
+    }
+
+    .kw {
+      color: #c084fc;
+    }
+
+    .cl {
+      color: #60a5fa;
+    }
+
+    .an {
+      color: #4ade80;
+    }
+
+    .st {
+      color: #fb923c;
+    }
+
+    .cm {
+      color: #4b5563;
+    }
+
+    .num {
+      color: #22d3ee;
+    }
+
+    /* tabs */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 8px 16px;
+      border-radius: 6px 6px 0 0;
+      font-size: 12px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-sans);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+
+    .tab:hover {
+      color: var(--text);
+    }
+
+    .tab.active {
+      color: var(--text);
+      border-bottom-color: var(--active-tab-color, #fff);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* docker panel */
+    .docker-compose {
+      background: #0a0c10;
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .docker-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .docker-header-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ms1);
+      font-weight: 600;
+    }
+
+    .docker-body {
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.8;
+      color: #8892a4;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .dk-key {
+      color: #60a5fa;
+    }
+
+    .dk-val {
+      color: #fb923c;
+    }
+
+    .dk-cmt {
+      color: #374151;
+    }
+
+    .dk-str {
+      color: #4ade80;
+    }
+
+    .dk-num {
+      color: #22d3ee;
+    }
+
+    /* responsive */
+    @media (max-width: 768px) {
+      .shell {
+        grid-template-columns: 1fr;
+        grid-template-rows: 60px auto 1fr;
+      }
+
+      .sidebar {
+        grid-row: 2;
+        border-right: none;
+        border-bottom: 1px solid var(--border2);
+        max-height: 200px;
+      }
+
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="shell">
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-logo">incident<span>-ms</span> /</div>
-    <span style="color:var(--muted);font-size:13px;">Architecture Unifiée · 5 Microservices</span>
-    <div class="topbar-tags">
-      <span class="tag">Java 17</span>
-      <span class="tag">Spring Boot 3</span>
-      <span class="tag">Docker</span>
-      <span class="tag">REST</span>
-    </div>
-  </header>
+  <div class="shell">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-logo">incident<span>-ms</span> /</div>
+      <span style="color:var(--muted);font-size:13px;">Architecture Unifiée · 5 Microservices</span>
+      <div class="topbar-tags">
+        <span class="tag">Java 17</span>
+        <span class="tag">Spring Boot 3</span>
+        <span class="tag">Docker</span>
+        <span class="tag">REST</span>
+      </div>
+    </header>
 
-  <!-- SIDEBAR -->
-  <nav class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Vues</div>
-      <button class="view-btn active" onclick="showPanel('overview')" id="vbtn-overview">
-        <span class="view-icon">⬡</span> Vue globale
-      </button>
-      <button class="view-btn" onclick="showPanel('filetree')" id="vbtn-filetree">
-        <span class="view-icon">📁</span> Arborescence fichiers
-      </button>
-      <button class="view-btn" onclick="showPanel('docker')" id="vbtn-docker">
-        <span class="view-icon">🐳</span> Docker Compose
-      </button>
-    </div>
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Vues</div>
+        <button class="view-btn active" onclick="showPanel('overview')" id="vbtn-overview">
+          <span class="view-icon">⬡</span> Vue globale
+        </button>
+        <button class="view-btn" onclick="showPanel('filetree')" id="vbtn-filetree">
+          <span class="view-icon">📁</span> Arborescence fichiers
+        </button>
+        <button class="view-btn" onclick="showPanel('docker')" id="vbtn-docker">
+          <span class="view-icon">🐳</span> Docker Compose
+        </button>
+      </div>
 
-    <div class="sidebar-divider"></div>
+      <div class="sidebar-divider"></div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Microservices</div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Microservices</div>
 
-      <button class="ms-btn" onclick="showMS(1)" id="msbtn-1"
-        style="--dot-color:var(--ms1);--active-color:var(--ms1)">
-        <span class="ms-dot"></span> Déclaration
-        <span class="ms-num">:8081</span>
-      </button>
-      <button class="ms-btn" onclick="showMS(2)" id="msbtn-2"
-        style="--dot-color:var(--ms2);--active-color:var(--ms2)">
-        <span class="ms-dot"></span> Affectation
-        <span class="ms-num">:8082</span>
-      </button>
-      <button class="ms-btn" onclick="showMS(3)" id="msbtn-3"
-        style="--dot-color:var(--ms3);--active-color:var(--ms3)">
-        <span class="ms-dot"></span> Utilisateurs
-        <span class="ms-num">:8083</span>
-      </button>
-      <button class="ms-btn" onclick="showMS(4)" id="msbtn-4"
-        style="--dot-color:var(--ms4);--active-color:var(--ms4)">
-        <span class="ms-dot"></span> Équipements
-        <span class="ms-num">:8084</span>
-      </button>
-      <button class="ms-btn" onclick="showMS(5)" id="msbtn-5"
-        style="--dot-color:var(--ms5);--active-color:var(--ms5)">
-        <span class="ms-dot"></span> Notifications
-        <span class="ms-num">:8085</span>
-      </button>
-    </div>
-  </nav>
+        <button class="ms-btn" onclick="showMS(1)" id="msbtn-1"
+          style="--dot-color:var(--ms1);--active-color:var(--ms1)">
+          <span class="ms-dot"></span> Déclaration
+          <span class="ms-num">:8081</span>
+        </button>
+        <button class="ms-btn" onclick="showMS(2)" id="msbtn-2"
+          style="--dot-color:var(--ms2);--active-color:var(--ms2)">
+          <span class="ms-dot"></span> Affectation
+          <span class="ms-num">:8082</span>
+        </button>
+        <button class="ms-btn" onclick="showMS(3)" id="msbtn-3"
+          style="--dot-color:var(--ms3);--active-color:var(--ms3)">
+          <span class="ms-dot"></span> Utilisateurs
+          <span class="ms-num">:8083</span>
+        </button>
+        <button class="ms-btn" onclick="showMS(4)" id="msbtn-4"
+          style="--dot-color:var(--ms4);--active-color:var(--ms4)">
+          <span class="ms-dot"></span> Équipements
+          <span class="ms-num">:8084</span>
+        </button>
+        <button class="ms-btn" onclick="showMS(5)" id="msbtn-5"
+          style="--dot-color:var(--ms5);--active-color:var(--ms5)">
+          <span class="ms-dot"></span> Notifications
+          <span class="ms-num">:8085</span>
+        </button>
+      </div>
+    </nav>
 
-  <!-- MAIN CONTENT -->
-  <main class="main">
+    <!-- MAIN CONTENT -->
+    <main class="main">
 
-    <!-- ══════════════════════════════════════════════════
+      <!-- ══════════════════════════════════════════════════
          OVERVIEW PANEL
     ══════════════════════════════════════════════════ -->
-    <section class="panel active" id="panel-overview">
-      <div class="overview-header">
-        <h1>Système Distribué — Gestion des Incidents IT</h1>
-        <p>5 microservices indépendants · 5 bases de données séparées · Communication REST uniquement</p>
-      </div>
-
-      <div class="arch-diagram">
-        <h3>Architecture des microservices</h3>
-        <div class="arch-grid">
-          <!-- Row 1: MS1, MS3, MS4 -->
-          <div class="ms-card" onclick="showMS(1)" style="--card-accent:var(--ms1);--card-bg:var(--ms1d);--card-border:var(--ms1);--card-bg2:rgba(59,130,246,0.15)">
-            <div class="ms-card-num">MS1 · :8081</div>
-            <div class="ms-card-title">Déclaration des Incidents</div>
-            <div class="ms-card-sub">CRUD incidents, validation demandeur &amp; équipement, envoi événements</div>
-            <div class="ms-card-port">DB: incidents_db</div>
-          </div>
-          <div class="ms-card" onclick="showMS(3)" style="--card-accent:var(--ms3);--card-bg:var(--ms3d);--card-border:var(--ms3);--card-bg2:rgba(168,85,247,0.15)">
-            <div class="ms-card-num">MS3 · :8083</div>
-            <div class="ms-card-title">Utilisateurs &amp; Équipes</div>
-            <div class="ms-card-sub">CRUD users/techniciens, rôles, équipes, endpoint /validate</div>
-            <div class="ms-card-port">DB: users_db</div>
-          </div>
-          <div class="ms-card" onclick="showMS(4)" style="--card-accent:var(--ms4);--card-bg:var(--ms4d);--card-border:var(--ms4);--card-bg2:rgba(249,115,22,0.15)">
-            <div class="ms-card-num">MS4 · :8084</div>
-            <div class="ms-card-title">Équipements &amp; Ressources IT</div>
-            <div class="ms-card-sub">CRUD équipements, catégories, état ressources, endpoint /exists</div>
-            <div class="ms-card-port">DB: equipements_db</div>
-          </div>
-          <!-- Row 2: MS2 -->
-          <div class="ms-card" onclick="showMS(2)" style="--card-accent:var(--ms2);--card-bg:var(--ms2d);--card-border:var(--ms2);--card-bg2:rgba(34,197,94,0.15)">
-            <div class="ms-card-num">MS2 · :8082</div>
-            <div class="ms-card-title">Affectation &amp; Traitement</div>
-            <div class="ms-card-sub">Workflow affectation, états, clôture, suivi avancement</div>
-            <div class="ms-card-port">DB: affectations_db</div>
-          </div>
-          <!-- empty -->
-          <div></div>
-          <!-- empty -->
-          <div></div>
-          <!-- Row 3: MS5 centered -->
-          <div class="ms-card ms-card-center" onclick="showMS(5)" style="--card-accent:var(--ms5);--card-bg:var(--ms5d);--card-border:var(--ms5);--card-bg2:rgba(6,182,212,0.15)">
-            <div class="ms-card-num">MS5 · :8085</div>
-            <div class="ms-card-title">Notifications &amp; Historique</div>
-            <div class="ms-card-sub">Réception événements, historique global, notifications acteurs</div>
-            <div class="ms-card-port">DB: notifications_db</div>
-          </div>
+      <section class="panel active" id="panel-overview">
+        <div class="overview-header">
+          <h1>Système Distribué — Gestion des Incidents IT</h1>
+          <p>5 microservices indépendants · 5 bases de données séparées · Communication REST uniquement</p>
         </div>
 
-        <div class="comms-row">
-          <div class="comm-item">
-            <div class="comm-line rest"></div>
-            Appel REST synchrone
-          </div>
-          <div class="comm-item">
-            <div style="width:24px;border-top:2px dashed var(--ms5)"></div>
-            Événement (REST async ou Kafka)
-          </div>
-          <div class="comm-item" style="margin-left:auto;color:var(--dim);font-size:11px;">
-            Cliquer sur un service pour voir ses détails →
-          </div>
-        </div>
-      </div>
-
-      <!-- Communication matrix -->
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px;margin-bottom:28px;">
-        <div class="section-label">Matrice de communication</div>
-        <div style="overflow-x:auto;">
-          <table style="width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font-mono);">
-            <thead>
-              <tr>
-                <th style="text-align:left;padding:8px 12px;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;">Appelant ↓ / Appelé →</th>
-                <th style="padding:8px 12px;color:var(--ms1);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">MS1</th>
-                <th style="padding:8px 12px;color:var(--ms2);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">MS2</th>
-                <th style="padding:8px 12px;color:var(--ms3);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">MS3</th>
-                <th style="padding:8px 12px;color:var(--ms4);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">MS4</th>
-                <th style="padding:8px 12px;color:var(--ms5);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">MS5</th>
-              </tr>
-            </thead>
-            <tbody id="comm-matrix">
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Project structure summary -->
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px;">
-        <div class="section-label">Conventions du projet</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;">Structure Maven</div>
-            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.8;">
-              incident-system/<br>
-              ├── ms1-declaration/<br>
-              ├── ms2-affectation/<br>
-              ├── ms3-utilisateurs/<br>
-              ├── ms4-equipements/<br>
-              ├── ms5-notifications/<br>
-              └── docker-compose.yml
+        <div class="arch-diagram">
+          <h3>Architecture des microservices</h3>
+          <div class="arch-grid">
+            <!-- Row 1: MS1, MS3, MS4 -->
+            <div class="ms-card" onclick="showMS(1)"
+              style="--card-accent:var(--ms1);--card-bg:var(--ms1d);--card-border:var(--ms1);--card-bg2:rgba(59,130,246,0.15)">
+              <div class="ms-card-num">MS1 · :8081</div>
+              <div class="ms-card-title">Déclaration des Incidents</div>
+              <div class="ms-card-sub">CRUD incidents, validation demandeur &amp; équipement, envoi événements</div>
+              <div class="ms-card-port">DB: incidents_db</div>
+            </div>
+            <div class="ms-card" onclick="showMS(3)"
+              style="--card-accent:var(--ms3);--card-bg:var(--ms3d);--card-border:var(--ms3);--card-bg2:rgba(168,85,247,0.15)">
+              <div class="ms-card-num">MS3 · :8083</div>
+              <div class="ms-card-title">Utilisateurs &amp; Équipes</div>
+              <div class="ms-card-sub">CRUD users/techniciens, rôles, équipes, endpoint /validate</div>
+              <div class="ms-card-port">DB: users_db</div>
+            </div>
+            <div class="ms-card" onclick="showMS(4)"
+              style="--card-accent:var(--ms4);--card-bg:var(--ms4d);--card-border:var(--ms4);--card-bg2:rgba(249,115,22,0.15)">
+              <div class="ms-card-num">MS4 · :8084</div>
+              <div class="ms-card-title">Équipements &amp; Ressources IT</div>
+              <div class="ms-card-sub">CRUD équipements, catégories, état ressources, endpoint /exists</div>
+              <div class="ms-card-port">DB: equipements_db</div>
+            </div>
+            <!-- Row 2: MS2 -->
+            <div class="ms-card" onclick="showMS(2)"
+              style="--card-accent:var(--ms2);--card-bg:var(--ms2d);--card-border:var(--ms2);--card-bg2:rgba(34,197,94,0.15)">
+              <div class="ms-card-num">MS2 · :8082</div>
+              <div class="ms-card-title">Affectation &amp; Traitement</div>
+              <div class="ms-card-sub">Workflow affectation, états, clôture, suivi avancement</div>
+              <div class="ms-card-port">DB: affectations_db</div>
+            </div>
+            <!-- empty -->
+            <div></div>
+            <!-- empty -->
+            <div></div>
+            <!-- Row 3: MS5 centered -->
+            <div class="ms-card ms-card-center" onclick="showMS(5)"
+              style="--card-accent:var(--ms5);--card-bg:var(--ms5d);--card-border:var(--ms5);--card-bg2:rgba(6,182,212,0.15)">
+              <div class="ms-card-num">MS5 · :8085</div>
+              <div class="ms-card-title">Notifications &amp; Historique</div>
+              <div class="ms-card-sub">Réception événements, historique global, notifications acteurs</div>
+              <div class="ms-card-port">DB: notifications_db</div>
             </div>
           </div>
-          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;">Package convention</div>
-            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.8;">
-              com.incidents.ms{N}/<br>
-              ├── controller/<br>
-              ├── service/<br>
-              ├── repository/<br>
-              ├── entity/<br>
-              ├── dto/<br>
-              └── client/
+
+          <div class="comms-row">
+            <div class="comm-item">
+              <div class="comm-line rest"></div>
+              Appel REST synchrone
             </div>
-          </div>
-          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;">Règles absolues</div>
-            <div style="font-size:11px;line-height:1.8;">
-              <span style="color:#f87171;">✗</span> <span style="color:var(--muted);">DB partagée interdite</span><br>
-              <span style="color:#f87171;">✗</span> <span style="color:var(--muted);">Accès direct aux tables</span><br>
-              <span style="color:#4ade80;">✓</span> <span style="color:var(--muted);">API REST uniquement</span><br>
-              <span style="color:#4ade80;">✓</span> <span style="color:var(--muted);">Port distinct par service</span><br>
-              <span style="color:#4ade80;">✓</span> <span style="color:var(--muted);">Swagger sur chaque service</span><br>
-              <span style="color:#60a5fa;">?</span> <span style="color:var(--muted);">Kafka optionnel (MS5)</span>
+            <div class="comm-item">
+              <div style="width:24px;border-top:2px dashed var(--ms5)"></div>
+              Événement (REST async ou Kafka)
+            </div>
+            <div class="comm-item" style="margin-left:auto;color:var(--dim);font-size:11px;">
+              Cliquer sur un service pour voir ses détails →
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- ══════════════════════════════════════════════════
+        <!-- Communication matrix -->
+        <div
+          style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px;margin-bottom:28px;">
+          <div class="section-label">Matrice de communication</div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font-mono);">
+              <thead>
+                <tr>
+                  <th
+                    style="text-align:left;padding:8px 12px;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;">
+                    Appelant ↓ / Appelé →</th>
+                  <th
+                    style="padding:8px 12px;color:var(--ms1);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">
+                    MS1</th>
+                  <th
+                    style="padding:8px 12px;color:var(--ms2);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">
+                    MS2</th>
+                  <th
+                    style="padding:8px 12px;color:var(--ms3);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">
+                    MS3</th>
+                  <th
+                    style="padding:8px 12px;color:var(--ms4);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">
+                    MS4</th>
+                  <th
+                    style="padding:8px 12px;color:var(--ms5);border-bottom:1px solid var(--border);font-weight:500;text-align:center;">
+                    MS5</th>
+                </tr>
+              </thead>
+              <tbody id="comm-matrix">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Project structure summary -->
+        <div style="background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px;">
+          <div class="section-label">Conventions du projet</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;">
+              <div
+                style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;">
+                Structure Maven</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.8;">
+                incident-system/<br>
+                ├── ms1-declaration/<br>
+                ├── ms2-affectation/<br>
+                ├── ms3-utilisateurs/<br>
+                ├── ms4-equipements/<br>
+                ├── ms5-notifications/<br>
+                └── docker-compose.yml
+              </div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;">
+              <div
+                style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;">
+                Package convention</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--text);line-height:1.8;">
+                com.incidents.ms{N}/<br>
+                ├── controller/<br>
+                ├── service/<br>
+                ├── repository/<br>
+                ├── entity/<br>
+                ├── dto/<br>
+                └── client/
+              </div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;">
+              <div
+                style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;">
+                Règles absolues</div>
+              <div style="font-size:11px;line-height:1.8;">
+                <span style="color:#f87171;">✗</span> <span style="color:var(--muted);">DB partagée interdite</span><br>
+                <span style="color:#f87171;">✗</span> <span style="color:var(--muted);">Accès direct aux
+                  tables</span><br>
+                <span style="color:#4ade80;">✓</span> <span style="color:var(--muted);">API REST uniquement</span><br>
+                <span style="color:#4ade80;">✓</span> <span style="color:var(--muted);">Port distinct par
+                  service</span><br>
+                <span style="color:#4ade80;">✓</span> <span style="color:var(--muted);">Swagger sur chaque
+                  service</span><br>
+                <span style="color:#60a5fa;">?</span> <span style="color:var(--muted);">Kafka optionnel (MS5)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════
          FILE TREE PANEL
     ══════════════════════════════════════════════════ -->
-    <section class="panel" id="panel-filetree">
-      <div style="margin-bottom:20px;">
-        <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">Arborescence complète du projet</h2>
-        <p style="font-size:13px;color:var(--muted);">Structure Maven multi-module · 1 dossier par microservice</p>
-      </div>
-      <div id="file-tree-root" class="file-tree"></div>
-    </section>
+      <section class="panel" id="panel-filetree">
+        <div style="margin-bottom:20px;">
+          <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">Arborescence complète du projet</h2>
+          <p style="font-size:13px;color:var(--muted);">Structure Maven multi-module · 1 dossier par microservice</p>
+        </div>
+        <div id="file-tree-root" class="file-tree"></div>
+      </section>
 
-    <!-- ══════════════════════════════════════════════════
+      <!-- ══════════════════════════════════════════════════
          DOCKER PANEL
     ══════════════════════════════════════════════════ -->
-    <section class="panel" id="panel-docker">
-      <div style="margin-bottom:20px;">
-        <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">Docker Compose — Lancement unifié</h2>
-        <p style="font-size:13px;color:var(--muted);">Un seul fichier pour démarrer les 5 services + 5 bases de données</p>
-      </div>
-      <div class="docker-compose">
-        <div class="docker-header">
-          <span style="font-size:16px;">🐳</span>
-          <span class="docker-header-title">docker-compose.yml</span>
-          <span style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-left:auto;">incident-system/</span>
+      <section class="panel" id="panel-docker">
+        <div style="margin-bottom:20px;">
+          <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">Docker Compose — Lancement unifié</h2>
+          <p style="font-size:13px;color:var(--muted);">Un seul fichier pour démarrer les 5 services + 5 bases de
+            données</p>
         </div>
-        <div class="docker-body" id="docker-body"></div>
-      </div>
+        <div class="docker-compose">
+          <div class="docker-header">
+            <span style="font-size:16px;">🐳</span>
+            <span class="docker-header-title">docker-compose.yml</span>
+            <span
+              style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-left:auto;">incident-system/</span>
+          </div>
+          <div class="docker-body" id="docker-body"></div>
+        </div>
 
-      <div style="margin-top:20px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:20px;">
-        <div class="section-label">Commandes utiles</div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="background:#0a0c10;border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:#4ade80;">
-            $ docker-compose up --build <span style="color:var(--dim)"># Démarrer tous les services</span>
-          </div>
-          <div style="background:#0a0c10;border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:#60a5fa;">
-            $ docker-compose up ms2-affectation ms3-utilisateurs <span style="color:var(--dim)"># Démarrer 2 services</span>
-          </div>
-          <div style="background:#0a0c10;border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:#fb923c;">
-            $ docker-compose logs -f ms2-affectation <span style="color:var(--dim)"># Voir les logs d'un service</span>
-          </div>
-          <div style="background:#0a0c10;border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:#f87171;">
-            $ docker-compose down -v <span style="color:var(--dim)"># Tout stopper + supprimer volumes</span>
+        <div
+          style="margin-top:20px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:20px;">
+          <div class="section-label">Commandes utiles</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div
+              style="background:#0a0c10;border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:#4ade80;">
+              $ docker-compose up --build <span style="color:var(--dim)"># Démarrer tous les services</span>
+            </div>
+            <div
+              style="background:#0a0c10;border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:#60a5fa;">
+              $ docker-compose up ms2-affectation ms3-utilisateurs <span style="color:var(--dim)"># Démarrer 2
+                services</span>
+            </div>
+            <div
+              style="background:#0a0c10;border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:#fb923c;">
+              $ docker-compose logs -f ms2-affectation <span style="color:var(--dim)"># Voir les logs d'un
+                service</span>
+            </div>
+            <div
+              style="background:#0a0c10;border:1px solid var(--border2);border-radius:7px;padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:#f87171;">
+              $ docker-compose down -v <span style="color:var(--dim)"># Tout stopper + supprimer volumes</span>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ══════════════════════════════════════════════════
+      <!-- ══════════════════════════════════════════════════
          MS DETAIL PANELS (1-5)
     ══════════════════════════════════════════════════ -->
-    <section class="panel" id="panel-ms"></section>
+      <section class="panel" id="panel-ms"></section>
 
-  </main><!-- /main -->
-</div><!-- /shell -->
+    </main><!-- /main -->
+  </div><!-- /shell -->
 
-<script>
-// ══════════════════════════════════════════════════════════
-// DATA
-// ══════════════════════════════════════════════════════════
-const MS = {
-  1: {
-    color: 'var(--ms1)', colorD: 'var(--ms1d)', colorS: 'var(--ms1s)',
-    num: 'MS1', port: ':8081', db: 'incidents_db',
-    title: 'Déclaration des Incidents',
-    sub: 'Point d\'entrée du système. Enregistre chaque incident, valide le demandeur (MS3) et l\'équipement (MS4), puis notifie MS5.',
-    module: 'ms1-declaration',
-    pkg: 'declaration',
-    endpoints: [
-      { m:'POST', p:'/api/incidents', d:'Créer un incident (valide demandeur + équipement)' },
-      { m:'GET',  p:'/api/incidents', d:'Lister tous les incidents' },
-      { m:'GET',  p:'/api/incidents/{id}', d:'Détail d\'un incident' },
-      { m:'PUT',  p:'/api/incidents/{id}/statut', d:'Mettre à jour le statut' },
-      { m:'GET',  p:'/api/incidents?categorie={c}', d:'Filtrer par catégorie' },
-    ],
-    tables: [
-      { name: 'incidents', icon: '📋', fields: [
-        { n:'id', t:'BIGINT', k:'PK' },
-        { n:'titre', t:'VARCHAR(255)' },
-        { n:'description', t:'TEXT' },
-        { n:'date_creation', t:'DATETIME' },
-        { n:'priorite', t:'ENUM(FAIBLE,MOYENNE,HAUTE,CRITIQUE)' },
-        { n:'categorie', t:'VARCHAR(100)' },
-        { n:'statut', t:'ENUM(OUVERT,EN_COURS,RÉSOLU,CLÔTURÉ)' },
-        { n:'demandeur_id', t:'BIGINT', fk:'→ MS3.users.id' },
-        { n:'equipement_id', t:'BIGINT', fk:'→ MS4.equipements.id' },
-      ]}
-    ],
-    comms: [
-      { dir:'→', target:'MS3 :8083', desc:'GET /api/users/{id}/validate — Vérifier que le demandeur existe', color:'var(--ms3)' },
-      { dir:'→', target:'MS4 :8084', desc:'GET /api/equipements/{id}/exists — Vérifier l\'équipement', color:'var(--ms4)' },
-      { dir:'→', target:'MS5 :8085', desc:'POST /api/notifications/events — Événement création incident', color:'var(--ms5)' },
-    ],
-    code: {
-      filename: 'Incident.java',
-      lang: 'Java',
-      body: `<span class="kw">package</span> com.incidents.ms1.declaration.entity;
+  <script>
+    // ══════════════════════════════════════════════════════════
+    // DATA
+    // ══════════════════════════════════════════════════════════
+    const MS = {
+      1: {
+        color: 'var(--ms1)', colorD: 'var(--ms1d)', colorS: 'var(--ms1s)',
+        num: 'MS1', port: ':8081', db: 'incidents_db',
+        title: 'Déclaration des Incidents',
+        sub: 'Point d\'entrée du système. Enregistre chaque incident, valide le demandeur (MS3) et l\'équipement (MS4), puis notifie MS5.',
+        module: 'ms1-declaration',
+        pkg: 'declaration',
+        endpoints: [
+          { m: 'POST', p: '/api/incidents', d: 'Créer un incident (valide demandeur + équipement)' },
+          { m: 'GET', p: '/api/incidents', d: 'Lister tous les incidents' },
+          { m: 'GET', p: '/api/incidents/{id}', d: 'Détail d\'un incident' },
+          { m: 'PUT', p: '/api/incidents/{id}/statut', d: 'Mettre à jour le statut' },
+          { m: 'GET', p: '/api/incidents?categorie={c}', d: 'Filtrer par catégorie' },
+        ],
+        tables: [
+          {
+            name: 'incidents', icon: '📋', fields: [
+              { n: 'id', t: 'BIGINT', k: 'PK' },
+              { n: 'titre', t: 'VARCHAR(255)' },
+              { n: 'description', t: 'TEXT' },
+              { n: 'date_creation', t: 'DATETIME' },
+              { n: 'priorite', t: 'ENUM(FAIBLE,MOYENNE,HAUTE,CRITIQUE)' },
+              { n: 'categorie', t: 'VARCHAR(100)' },
+              { n: 'statut', t: 'ENUM(EN_PANNE,OUVERT,EN_COURS,RÉSOLU,CLÔTURÉ)' },
+              { n: 'demandeur_id', t: 'BIGINT', fk: '→ MS3.users.id' },
+              { n: 'equipement_id', t: 'BIGINT', fk: '→ MS4.equipements.id' },
+            ]
+          }
+        ],
+        comms: [
+          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/users/{id}/validate — Vérifier que le demandeur existe', color: 'var(--ms3)' },
+          { dir: '→', target: 'MS4 :8084', desc: 'GET /api/equipements/{id}/exists — Vérifier l\'équipement', color: 'var(--ms4)' },
+          { dir: '→', target: 'MS5 :8085', desc: 'POST /api/notifications/events — Événement création incident', color: 'var(--ms5)' },
+        ],
+        code: {
+          filename: 'Incident.java',
+          lang: 'Java',
+          body: `<span class="kw">package</span> com.incidents.ms1.declaration.entity;
 
 <span class="an">@Entity</span>
 <span class="an">@Table</span>(name = <span class="st">"incidents"</span>)
@@ -769,45 +1320,47 @@ const MS = {
     <span class="kw">private</span> Long equipementId; <span class="cm">// ID dans MS4 — pas de FK réelle</span>
     <span class="cm">// getters / setters omis</span>
 }`
-    }
-  },
+        }
+      },
 
-  2: {
-    color: 'var(--ms2)', colorD: 'var(--ms2d)', colorS: 'var(--ms2s)',
-    num: 'MS2', port: ':8082', db: 'affectations_db',
-    title: 'Affectation & Traitement',
-    sub: 'Cœur du workflow. Gère le cycle de vie complet d\'une affectation : création, progression des états, clôture et suivi.',
-    module: 'ms2-affectation',
-    pkg: 'affectation',
-    endpoints: [
-      { m:'POST', p:'/api/affectations', d:'Créer une affectation (incident → technicien)' },
-      { m:'GET',  p:'/api/affectations', d:'Lister toutes les affectations' },
-      { m:'GET',  p:'/api/affectations/{id}', d:'Détail d\'une affectation' },
-      { m:'PUT',  p:'/api/affectations/{id}/statut', d:'Changer l\'état (EN_ATTENTE → EN_COURS…)' },
-      { m:'PUT',  p:'/api/affectations/{id}/cloturer', d:'Clôturer avec note de résolution' },
-      { m:'GET',  p:'/api/affectations/incident/{incidentId}', d:'Historique d\'un incident' },
-    ],
-    tables: [
-      { name: 'affectations', icon: '🔧', fields: [
-        { n:'id', t:'BIGINT', k:'PK' },
-        { n:'incident_id', t:'BIGINT', fk:'→ MS1 (référence)' },
-        { n:'technicien_id', t:'BIGINT', fk:'→ MS3 (référence)' },
-        { n:'equipe_id', t:'BIGINT', fk:'→ MS3 (référence)' },
-        { n:'statut', t:'ENUM(EN_ATTENTE,EN_COURS,BLOQUÉ,RÉSOLU,CLÔTURÉ)' },
-        { n:'date_affectation', t:'DATETIME' },
-        { n:'date_fin', t:'DATETIME' },
-        { n:'note_cloture', t:'TEXT' },
-      ]}
-    ],
-    comms: [
-      { dir:'→', target:'MS1 :8081', desc:'GET /api/incidents/{id} — Récupérer les infos de l\'incident avant affectation', color:'var(--ms1)' },
-      { dir:'→', target:'MS3 :8083', desc:'GET /api/users/{id}/validate — Vérifier le technicien assigné', color:'var(--ms3)' },
-      { dir:'→', target:'MS5 :8085', desc:'POST /api/notifications/events — Événements : affectation, changement état, clôture', color:'var(--ms5)' },
-    ],
-    code: {
-      filename: 'Affectation.java',
-      lang: 'Java',
-      body: `<span class="kw">package</span> com.incidents.ms2.affectation.entity;
+      2: {
+        color: 'var(--ms2)', colorD: 'var(--ms2d)', colorS: 'var(--ms2s)',
+        num: 'MS2', port: ':8082', db: 'affectations_db',
+        title: 'Affectation & Traitement',
+        sub: 'Cœur du workflow. Gère le cycle de vie complet d\'une affectation : création, progression des états, clôture et suivi.',
+        module: 'ms2-affectation',
+        pkg: 'affectation',
+        endpoints: [
+          { m: 'POST', p: '/api/affectations', d: 'Créer une affectation (incident → technicien)' },
+          { m: 'GET', p: '/api/affectations', d: 'Lister toutes les affectations' },
+          { m: 'GET', p: '/api/affectations/{id}', d: 'Détail d\'une affectation' },
+          { m: 'PUT', p: '/api/affectations/{id}/statut', d: 'Changer l\'état (EN_ATTENTE → EN_COURS…)' },
+          { m: 'PUT', p: '/api/affectations/{id}/cloturer', d: 'Clôturer avec note de résolution' },
+          { m: 'GET', p: '/api/affectations/incident/{incidentId}', d: 'Historique d\'un incident' },
+        ],
+        tables: [
+          {
+            name: 'affectations', icon: '🔧', fields: [
+              { n: 'id', t: 'BIGINT', k: 'PK' },
+              { n: 'incident_id', t: 'BIGINT', fk: '→ MS1 (référence)' },
+              { n: 'technicien_id', t: 'BIGINT', fk: '→ MS3 (référence)' },
+              { n: 'equipe_id', t: 'BIGINT', fk: '→ MS3 (référence)' },
+              { n: 'statut', t: 'ENUM(EN_ATTENTE,EN_COURS,BLOQUÉ,RÉSOLU,CLÔTURÉ)' },
+              { n: 'date_affectation', t: 'DATETIME' },
+              { n: 'date_fin', t: 'DATETIME' },
+              { n: 'note_cloture', t: 'TEXT' },
+            ]
+          }
+        ],
+        comms: [
+          { dir: '→', target: 'MS1 :8081', desc: 'GET /api/incidents/{id} — Récupérer les infos de l\'incident avant affectation', color: 'var(--ms1)' },
+          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/users/{id}/validate — Vérifier le technicien assigné', color: 'var(--ms3)' },
+          { dir: '→', target: 'MS5 :8085', desc: 'POST /api/notifications/events — Événements : affectation, changement état, clôture', color: 'var(--ms5)' },
+        ],
+        code: {
+          filename: 'Affectation.java',
+          lang: 'Java',
+          body: `<span class="kw">package</span> com.incidents.ms2.affectation.entity;
 
 <span class="an">@Entity</span>
 <span class="an">@Table</span>(name = <span class="st">"affectations"</span>)
@@ -834,50 +1387,54 @@ const MS = {
 <span class="cm">// Transitions valides du statut :</span>
 <span class="cm">// EN_ATTENTE → EN_COURS → RÉSOLU → CLÔTURÉ</span>
 <span class="cm">//          ↘ BLOQUÉ ↗ (réassignation possible)</span>`
-    }
-  },
+        }
+      },
 
-  3: {
-    color: 'var(--ms3)', colorD: 'var(--ms3d)', colorS: 'var(--ms3s)',
-    num: 'MS3', port: ':8083', db: 'users_db',
-    title: 'Utilisateurs & Équipes',
-    sub: 'Service de référentiel. Fournit les endpoints de validation utilisés par MS1 et MS2 pour vérifier l\'existence des acteurs.',
-    module: 'ms3-utilisateurs',
-    pkg: 'utilisateurs',
-    endpoints: [
-      { m:'POST', p:'/api/users', d:'Créer un utilisateur ou technicien' },
-      { m:'GET',  p:'/api/users', d:'Lister tous les utilisateurs' },
-      { m:'GET',  p:'/api/users/{id}', d:'Détail d\'un utilisateur' },
-      { m:'GET',  p:'/api/users/{id}/validate', d:'Valider l\'existence (utilisé par MS1/MS2)' },
-      { m:'POST', p:'/api/equipes', d:'Créer une équipe technique' },
-      { m:'GET',  p:'/api/equipes', d:'Lister les équipes' },
-      { m:'GET',  p:'/api/equipes/{id}', d:'Détail d\'une équipe' },
-    ],
-    tables: [
-      { name: 'utilisateurs', icon: '👤', fields: [
-        { n:'id', t:'BIGINT', k:'PK' },
-        { n:'nom', t:'VARCHAR(100)' },
-        { n:'email', t:'VARCHAR(255)', k:'UNIQUE' },
-        { n:'role', t:'ENUM(UTILISATEUR,TECHNICIEN,ADMIN)' },
-        { n:'equipe_id', t:'BIGINT', fk:'→ equipes.id' },
-        { n:'actif', t:'BOOLEAN' },
-      ]},
-      { name: 'equipes', icon: '👥', fields: [
-        { n:'id', t:'BIGINT', k:'PK' },
-        { n:'nom', t:'VARCHAR(100)' },
-        { n:'responsable_id', t:'BIGINT', fk:'→ utilisateurs.id' },
-        { n:'description', t:'TEXT' },
-      ]}
-    ],
-    comms: [
-      { dir:'←', target:'MS1 :8081', desc:'Reçoit GET /validate — appelé lors de la déclaration d\'un incident', color:'var(--ms1)' },
-      { dir:'←', target:'MS2 :8082', desc:'Reçoit GET /validate — appelé lors de l\'affectation d\'un technicien', color:'var(--ms2)' },
-      { dir:'←', target:'MS5 :8085', desc:'Peut recevoir GET /users/{id} pour enrichir les notifications', color:'var(--ms5)' },
-    ],
-    code: {
-      filename: 'UserController.java',
-      lang: 'Java',
-      body: `<span class="an">@RestController</span>
+      3: {
+        color: 'var(--ms3)', colorD: 'var(--ms3d)', colorS: 'var(--ms3s)',
+        num: 'MS3', port: ':8083', db: 'users_db',
+        title: 'Utilisateurs & Équipes',
+        sub: 'Service de référentiel. Fournit les endpoints de validation utilisés par MS1 et MS2 pour vérifier l\'existence des acteurs.',
+        module: 'ms3-utilisateurs',
+        pkg: 'utilisateurs',
+        endpoints: [
+          { m: 'POST', p: '/api/users', d: 'Créer un utilisateur ou technicien' },
+          { m: 'GET', p: '/api/users', d: 'Lister tous les utilisateurs' },
+          { m: 'GET', p: '/api/users/{id}', d: 'Détail d\'un utilisateur' },
+          { m: 'GET', p: '/api/users/{id}/validate', d: 'Valider l\'existence (utilisé par MS1/MS2)' },
+          { m: 'POST', p: '/api/equipes', d: 'Créer une équipe technique' },
+          { m: 'GET', p: '/api/equipes', d: 'Lister les équipes' },
+          { m: 'GET', p: '/api/equipes/{id}', d: 'Détail d\'une équipe' },
+        ],
+        tables: [
+          {
+            name: 'utilisateurs', icon: '👤', fields: [
+              { n: 'id', t: 'BIGINT', k: 'PK' },
+              { n: 'nom', t: 'VARCHAR(100)' },
+              { n: 'email', t: 'VARCHAR(255)', k: 'UNIQUE' },
+              { n: 'role', t: 'ENUM(UTILISATEUR,TECHNICIEN,ADMIN)' },
+              { n: 'equipe_id', t: 'BIGINT', fk: '→ equipes.id' },
+              { n: 'actif', t: 'BOOLEAN' },
+            ]
+          },
+          {
+            name: 'equipes', icon: '👥', fields: [
+              { n: 'id', t: 'BIGINT', k: 'PK' },
+              { n: 'nom', t: 'VARCHAR(100)' },
+              { n: 'responsable_id', t: 'BIGINT', fk: '→ utilisateurs.id' },
+              { n: 'description', t: 'TEXT' },
+            ]
+          }
+        ],
+        comms: [
+          { dir: '←', target: 'MS1 :8081', desc: 'Reçoit GET /validate — appelé lors de la déclaration d\'un incident', color: 'var(--ms1)' },
+          { dir: '←', target: 'MS2 :8082', desc: 'Reçoit GET /validate — appelé lors de l\'affectation d\'un technicien', color: 'var(--ms2)' },
+          { dir: '←', target: 'MS5 :8085', desc: 'Peut recevoir GET /users/{id} pour enrichir les notifications', color: 'var(--ms5)' },
+        ],
+        code: {
+          filename: 'UserController.java',
+          lang: 'Java',
+          body: `<span class="an">@RestController</span>
 <span class="an">@RequestMapping</span>(<span class="st">"/api/users"</span>)
 <span class="kw">public class</span> <span class="cl">UserController</span> {
 
@@ -902,49 +1459,53 @@ const MS = {
         <span class="kw">return</span> userService.findAll();
     }
 }`
-    }
-  },
+        }
+      },
 
-  4: {
-    color: 'var(--ms4)', colorD: 'var(--ms4d)', colorS: 'var(--ms4s)',
-    num: 'MS4', port: ':8084', db: 'equipements_db',
-    title: 'Équipements & Ressources IT',
-    sub: 'Référentiel du parc informatique. Fournit l\'endpoint /exists utilisé par MS1 lors de la déclaration d\'un incident.',
-    module: 'ms4-equipements',
-    pkg: 'equipements',
-    endpoints: [
-      { m:'POST', p:'/api/equipements', d:'Enregistrer un équipement' },
-      { m:'GET',  p:'/api/equipements', d:'Lister tous les équipements' },
-      { m:'GET',  p:'/api/equipements/{id}', d:'Détail d\'un équipement' },
-      { m:'GET',  p:'/api/equipements/{id}/exists', d:'Vérifier l\'existence (utilisé par MS1)' },
-      { m:'PUT',  p:'/api/equipements/{id}/statut', d:'Mettre à jour l\'état d\'une ressource' },
-      { m:'GET',  p:'/api/categories', d:'Lister les catégories d\'équipements' },
-    ],
-    tables: [
-      { name: 'equipements', icon: '🖥️', fields: [
-        { n:'id', t:'BIGINT', k:'PK' },
-        { n:'nom', t:'VARCHAR(255)' },
-        { n:'type', t:'VARCHAR(100)' },
-        { n:'categorie_id', t:'BIGINT', fk:'→ categories.id' },
-        { n:'localisation', t:'VARCHAR(255)' },
-        { n:'adresse_ip', t:'VARCHAR(50)' },
-        { n:'statut', t:'ENUM(OPERATIONNEL,EN_PANNE,MAINTENANCE)' },
-        { n:'date_installation', t:'DATE' },
-      ]},
-      { name: 'categories', icon: '🏷️', fields: [
-        { n:'id', t:'BIGINT', k:'PK' },
-        { n:'nom', t:'VARCHAR(100)' },
-        { n:'description', t:'TEXT' },
-      ]}
-    ],
-    comms: [
-      { dir:'←', target:'MS1 :8081', desc:'Reçoit GET /exists — lors de la création d\'un incident', color:'var(--ms1)' },
-      { dir:'←', target:'MS2 :8082', desc:'Peut recevoir GET /{id} — pour contexte technique lors du traitement', color:'var(--ms2)' },
-    ],
-    code: {
-      filename: 'Equipement.java',
-      lang: 'Java',
-      body: `<span class="an">@Entity</span>
+      4: {
+        color: 'var(--ms4)', colorD: 'var(--ms4d)', colorS: 'var(--ms4s)',
+        num: 'MS4', port: ':8084', db: 'equipements_db',
+        title: 'Équipements & Ressources IT',
+        sub: 'Référentiel du parc informatique. Fournit l\'endpoint /exists utilisé par MS1 lors de la déclaration d\'un incident.',
+        module: 'ms4-equipements',
+        pkg: 'equipements',
+        endpoints: [
+          { m: 'POST', p: '/api/equipements', d: 'Enregistrer un équipement' },
+          { m: 'GET', p: '/api/equipements', d: 'Lister tous les équipements' },
+          { m: 'GET', p: '/api/equipements/{id}', d: 'Détail d\'un équipement' },
+          { m: 'GET', p: '/api/equipements/{id}/exists', d: 'Vérifier l\'existence (utilisé par MS1)' },
+          { m: 'PUT', p: '/api/equipements/{id}/statut', d: 'Mettre à jour l\'état d\'une ressource' },
+          { m: 'GET', p: '/api/categories', d: 'Lister les catégories d\'équipements' },
+        ],
+        tables: [
+          {
+            name: 'equipements', icon: '🖥️', fields: [
+              { n: 'id', t: 'BIGINT', k: 'PK' },
+              { n: 'nom', t: 'VARCHAR(255)' },
+              { n: 'type', t: 'VARCHAR(100)' },
+              { n: 'categorie_id', t: 'BIGINT', fk: '→ categories.id' },
+              { n: 'localisation', t: 'VARCHAR(255)' },
+              { n: 'adresse_ip', t: 'VARCHAR(50)' },
+              { n: 'statut', t: 'ENUM(OPERATIONNEL,EN_PANNE,MAINTENANCE)' },
+              { n: 'date_installation', t: 'DATE' },
+            ]
+          },
+          {
+            name: 'categories', icon: '🏷️', fields: [
+              { n: 'id', t: 'BIGINT', k: 'PK' },
+              { n: 'nom', t: 'VARCHAR(100)' },
+              { n: 'description', t: 'TEXT' },
+            ]
+          }
+        ],
+        comms: [
+          { dir: '←', target: 'MS1 :8081', desc: 'Reçoit GET /exists — lors de la création d\'un incident', color: 'var(--ms1)' },
+          { dir: '←', target: 'MS2 :8082', desc: 'Peut recevoir GET /{id} — pour contexte technique lors du traitement', color: 'var(--ms2)' },
+        ],
+        code: {
+          filename: 'Equipement.java',
+          lang: 'Java',
+          body: `<span class="an">@Entity</span>
 <span class="an">@Table</span>(name = <span class="st">"equipements"</span>)
 <span class="kw">public class</span> <span class="cl">Equipement</span> {
 
@@ -972,51 +1533,55 @@ const MS = {
 <span class="kw">public</span> ResponseEntity&lt;Boolean&gt; exists(<span class="an">@PathVariable</span> Long id) {
     <span class="kw">return</span> ResponseEntity.ok(repository.existsById(id));
 }`
-    }
-  },
+        }
+      },
 
-  5: {
-    color: 'var(--ms5)', colorD: 'var(--ms5d)', colorS: 'var(--ms5s)',
-    num: 'MS5', port: ':8085', db: 'notifications_db',
-    title: 'Notifications & Historique',
-    sub: 'Collecteur central d\'événements. Reçoit les événements de MS1 et MS2, les enregistre et construit l\'historique complet de chaque incident.',
-    module: 'ms5-notifications',
-    pkg: 'notifications',
-    endpoints: [
-      { m:'POST', p:'/api/notifications/events', d:'Recevoir un événement (appelé par MS1/MS2)' },
-      { m:'GET',  p:'/api/historique', d:'Historique global de toutes les actions' },
-      { m:'GET',  p:'/api/historique/incident/{id}', d:'Historique complet d\'un incident' },
-      { m:'GET',  p:'/api/notifications/user/{userId}', d:'Notifications d\'un utilisateur' },
-    ],
-    tables: [
-      { name: 'historique', icon: '📜', fields: [
-        { n:'id', t:'BIGINT', k:'PK' },
-        { n:'type_action', t:'VARCHAR(100)' },
-        { n:'incident_id', t:'BIGINT' },
-        { n:'acteur_id', t:'BIGINT' },
-        { n:'acteur_nom', t:'VARCHAR(255)' },
-        { n:'date_action', t:'DATETIME' },
-        { n:'details', t:'JSON' },
-      ]},
-      { name: 'notifications', icon: '🔔', fields: [
-        { n:'id', t:'BIGINT', k:'PK' },
-        { n:'type', t:'ENUM(CREATION,AFFECTATION,MAJ_STATUT,CLOTURE)' },
-        { n:'incident_id', t:'BIGINT' },
-        { n:'destinataire_id', t:'BIGINT' },
-        { n:'message', t:'TEXT' },
-        { n:'lue', t:'BOOLEAN' },
-        { n:'date_envoi', t:'DATETIME' },
-      ]}
-    ],
-    comms: [
-      { dir:'←', target:'MS1 :8081', desc:'Reçoit POST /events de type CREATION_INCIDENT', color:'var(--ms1)' },
-      { dir:'←', target:'MS2 :8082', desc:'Reçoit POST /events de type AFFECTATION, MAJ_STATUT, CLOTURE', color:'var(--ms2)' },
-      { dir:'→', target:'MS3 :8083', desc:'GET /api/users/{id} — Pour enrichir les notifications avec le nom de l\'acteur', color:'var(--ms3)' },
-    ],
-    code: {
-      filename: 'NotificationService.java',
-      lang: 'Java',
-      body: `<span class="an">@Service</span>
+      5: {
+        color: 'var(--ms5)', colorD: 'var(--ms5d)', colorS: 'var(--ms5s)',
+        num: 'MS5', port: ':8085', db: 'notifications_db',
+        title: 'Notifications & Historique',
+        sub: 'Collecteur central d\'événements. Reçoit les événements de MS1 et MS2, les enregistre et construit l\'historique complet de chaque incident.',
+        module: 'ms5-notifications',
+        pkg: 'notifications',
+        endpoints: [
+          { m: 'POST', p: '/api/notifications/events', d: 'Recevoir un événement (appelé par MS1/MS2)' },
+          { m: 'GET', p: '/api/historique', d: 'Historique global de toutes les actions' },
+          { m: 'GET', p: '/api/historique/incident/{id}', d: 'Historique complet d\'un incident' },
+          { m: 'GET', p: '/api/notifications/user/{userId}', d: 'Notifications d\'un utilisateur' },
+        ],
+        tables: [
+          {
+            name: 'historique', icon: '📜', fields: [
+              { n: 'id', t: 'BIGINT', k: 'PK' },
+              { n: 'type_action', t: 'VARCHAR(100)' },
+              { n: 'incident_id', t: 'BIGINT' },
+              { n: 'acteur_id', t: 'BIGINT' },
+              { n: 'acteur_nom', t: 'VARCHAR(255)' },
+              { n: 'date_action', t: 'DATETIME' },
+              { n: 'details', t: 'JSON' },
+            ]
+          },
+          {
+            name: 'notifications', icon: '🔔', fields: [
+              { n: 'id', t: 'BIGINT', k: 'PK' },
+              { n: 'type', t: 'ENUM(CREATION,AFFECTATION,MAJ_STATUT,CLOTURE)' },
+              { n: 'incident_id', t: 'BIGINT' },
+              { n: 'destinataire_id', t: 'BIGINT' },
+              { n: 'message', t: 'TEXT' },
+              { n: 'lue', t: 'BOOLEAN' },
+              { n: 'date_envoi', t: 'DATETIME' },
+            ]
+          }
+        ],
+        comms: [
+          { dir: '←', target: 'MS1 :8081', desc: 'Reçoit POST /events de type CREATION_INCIDENT', color: 'var(--ms1)' },
+          { dir: '←', target: 'MS2 :8082', desc: 'Reçoit POST /events de type AFFECTATION, MAJ_STATUT, CLOTURE', color: 'var(--ms2)' },
+          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/users/{id} — Pour enrichir les notifications avec le nom de l\'acteur', color: 'var(--ms3)' },
+        ],
+        code: {
+          filename: 'NotificationService.java',
+          lang: 'Java',
+          body: `<span class="an">@Service</span>
 <span class="kw">public class</span> <span class="cl">NotificationService</span> {
 
     <span class="an">@Autowired</span> <span class="kw">private</span> <span class="cl">HistoriqueRepository</span> historiqueRepo;
@@ -1044,79 +1609,101 @@ const MS = {
         notifRepo.save(n);
     }
 }`
+        }
+      }
+    };
+
+    // Communication matrix data
+    const MATRIX = {
+      1: { 3: 'GET /validate', 4: 'GET /exists', 5: 'POST /events' },
+      2: { 1: 'GET /{id}', 3: 'GET /validate', 5: 'POST /events' },
+      3: {},
+      4: {},
+      5: { 3: 'GET /users/{id}' }
+    };
+
+    // ══════════════════════════════════════════════════════════
+    // FILE TREE DATA
+    // ══════════════════════════════════════════════════════════
+    const TREE = [
+      {
+        type: 'root', label: 'incident-system/', children: [
+          { type: 'file', name: 'docker-compose.yml', ext: 'docker', comment: 'lancement global' },
+          { type: 'file', name: 'pom.xml', ext: 'xml', comment: 'parent Maven' },
+          { type: 'file', name: 'README.md', ext: 'md' },
+          ...([1, 2, 3, 4, 5].map(n => {
+            const m = MS[n];
+            const pkg = m.pkg;
+            const baseP = `com/incidents/ms${n}/${pkg}`;
+            return {
+              type: 'ms', n, label: `ms${n}-${pkg}/`, children: [
+                { type: 'file', name: 'pom.xml', ext: 'xml' },
+                { type: 'file', name: 'Dockerfile', ext: 'docker' },
+                {
+                  type: 'folder', name: 'src/main/java/', children: [
+                    {
+                      type: 'folder', name: `${baseP}/`, children: [
+                        { type: 'file', name: `Ms${n}Application.java`, ext: 'java', comment: 'point d\'entrée' },
+                        {
+                          type: 'folder', name: 'controller/', children: [
+                            { type: 'file', name: `${cap(pkg)}Controller.java`, ext: 'java' },
+                          ]
+                        },
+                        {
+                          type: 'folder', name: 'service/', children: [
+                            { type: 'file', name: `${cap(pkg)}Service.java`, ext: 'java' },
+                          ]
+                        },
+                        {
+                          type: 'folder', name: 'repository/', children: [
+                            { type: 'file', name: `${cap(pkg)}Repository.java`, ext: 'java' },
+                          ]
+                        },
+                        {
+                          type: 'folder', name: 'entity/', children: [
+                            { type: 'file', name: `${mainEntity(n)}.java`, ext: 'java' },
+                            ...(n === 3 ? [{ type: 'file', name: 'Equipe.java', ext: 'java' }] : []),
+                            ...(n === 4 ? [{ type: 'file', name: 'Categorie.java', ext: 'java' }] : []),
+                            ...(n === 5 ? [{ type: 'file', name: 'Notification.java', ext: 'java' }] : []),
+                          ]
+                        },
+                        {
+                          type: 'folder', name: 'dto/', children: [
+                            { type: 'file', name: `${mainEntity(n)}Dto.java`, ext: 'java' },
+                          ]
+                        },
+                        ...(n === 1 || n === 2 || n === 5 ? [{
+                          type: 'folder', name: 'client/', children: [
+                            ...(n === 1 ? [{ type: 'file', name: 'UserClient.java', ext: 'java' }, { type: 'file', name: 'EquipementClient.java', ext: 'java' }, { type: 'file', name: 'NotificationClient.java', ext: 'java' }] : []),
+                            ...(n === 2 ? [{ type: 'file', name: 'IncidentClient.java', ext: 'java' }, { type: 'file', name: 'UserClient.java', ext: 'java' }, { type: 'file', name: 'NotificationClient.java', ext: 'java' }] : []),
+                            ...(n === 5 ? [{ type: 'file', name: 'UserClient.java', ext: 'java' }] : []),
+                          ]
+                        }] : []),
+                      ]
+                    }
+                  ]
+                },
+                {
+                  type: 'folder', name: 'src/main/resources/', children: [
+                    { type: 'file', name: 'application.properties', ext: 'props' },
+                  ]
+                },
+              ]
+            };
+          }))
+        ]
+      }
+    ];
+
+    function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+    function mainEntity(n) {
+      return ['', 'Incident', 'Affectation', 'Utilisateur', 'Equipement', 'Historique'][n];
     }
-  }
-};
 
-// Communication matrix data
-const MATRIX = {
-  1: { 3: 'GET /validate', 4: 'GET /exists', 5: 'POST /events' },
-  2: { 1: 'GET /{id}', 3: 'GET /validate', 5: 'POST /events' },
-  3: {},
-  4: {},
-  5: { 3: 'GET /users/{id}' }
-};
-
-// ══════════════════════════════════════════════════════════
-// FILE TREE DATA
-// ══════════════════════════════════════════════════════════
-const TREE = [
-  { type:'root', label:'incident-system/', children: [
-    { type:'file', name:'docker-compose.yml', ext:'docker', comment:'lancement global' },
-    { type:'file', name:'pom.xml', ext:'xml', comment:'parent Maven' },
-    { type:'file', name:'README.md', ext:'md' },
-    ...([1,2,3,4,5].map(n => {
-      const m = MS[n];
-      const pkg = m.pkg;
-      const baseP = `com/incidents/ms${n}/${pkg}`;
-      return { type:'ms', n, label:`ms${n}-${pkg}/`, children: [
-        { type:'file', name:'pom.xml', ext:'xml' },
-        { type:'file', name:'Dockerfile', ext:'docker' },
-        { type:'folder', name:'src/main/java/', children: [
-          { type:'folder', name:`${baseP}/`, children: [
-            { type:'file', name:`Ms${n}Application.java`, ext:'java', comment:'point d\'entrée' },
-            { type:'folder', name:'controller/', children: [
-              { type:'file', name:`${cap(pkg)}Controller.java`, ext:'java' },
-            ]},
-            { type:'folder', name:'service/', children: [
-              { type:'file', name:`${cap(pkg)}Service.java`, ext:'java' },
-            ]},
-            { type:'folder', name:'repository/', children: [
-              { type:'file', name:`${cap(pkg)}Repository.java`, ext:'java' },
-            ]},
-            { type:'folder', name:'entity/', children: [
-              { type:'file', name:`${mainEntity(n)}.java`, ext:'java' },
-              ...(n===3?[{type:'file',name:'Equipe.java',ext:'java'}]:[]),
-              ...(n===4?[{type:'file',name:'Categorie.java',ext:'java'}]:[]),
-              ...(n===5?[{type:'file',name:'Notification.java',ext:'java'}]:[]),
-            ]},
-            { type:'folder', name:'dto/', children: [
-              { type:'file', name:`${mainEntity(n)}Dto.java`, ext:'java' },
-            ]},
-            ...(n===1||n===2||n===5 ? [{ type:'folder', name:'client/', children: [
-              ...(n===1?[{type:'file',name:'UserClient.java',ext:'java'},{type:'file',name:'EquipementClient.java',ext:'java'},{type:'file',name:'NotificationClient.java',ext:'java'}]:[]),
-              ...(n===2?[{type:'file',name:'IncidentClient.java',ext:'java'},{type:'file',name:'UserClient.java',ext:'java'},{type:'file',name:'NotificationClient.java',ext:'java'}]:[]),
-              ...(n===5?[{type:'file',name:'UserClient.java',ext:'java'}]:[]),
-            ]}] : []),
-          ]}
-        ]},
-        { type:'folder', name:'src/main/resources/', children: [
-          { type:'file', name:'application.properties', ext:'props' },
-        ]},
-      ]};
-    }))
-  ]}
-];
-
-function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-function mainEntity(n) {
-  return ['','Incident','Affectation','Utilisateur','Equipement','Historique'][n];
-}
-
-// ══════════════════════════════════════════════════════════
-// DOCKER COMPOSE CONTENT
-// ══════════════════════════════════════════════════════════
-const DOCKER = `<span class="dk-cmt"># docker-compose.yml — incident-system</span>
+    // ══════════════════════════════════════════════════════════
+    // DOCKER COMPOSE CONTENT
+    // ══════════════════════════════════════════════════════════
+    const DOCKER = `<span class="dk-cmt"># docker-compose.yml — incident-system</span>
 <span class="dk-key">version</span>: <span class="dk-str">'3.8'</span>
 
 <span class="dk-key">services</span>:
@@ -1212,117 +1799,117 @@ const DOCKER = `<span class="dk-cmt"># docker-compose.yml — incident-system</s
   <span class="dk-key">db-equipements-data</span>:
   <span class="dk-key">db-notifications-data</span>:`;
 
-// ══════════════════════════════════════════════════════════
-// RENDER FUNCTIONS
-// ══════════════════════════════════════════════════════════
+    // ══════════════════════════════════════════════════════════
+    // RENDER FUNCTIONS
+    // ══════════════════════════════════════════════════════════
 
-function buildMatrix() {
-  const tbody = document.getElementById('comm-matrix');
-  const rows = [1,2,3,4,5];
-  const cellStyle = (caller, callee) => {
-    if (caller === callee) return `background:var(--surface2);color:var(--dim);`;
-    const call = MATRIX[caller]?.[callee];
-    if (call) {
-      const ms = MS[callee];
-      return `background:${ms.colorD};color:${ms.colorS};`;
-    }
-    return '';
-  };
-  tbody.innerHTML = rows.map(caller => `
+    function buildMatrix() {
+      const tbody = document.getElementById('comm-matrix');
+      const rows = [1, 2, 3, 4, 5];
+      const cellStyle = (caller, callee) => {
+        if (caller === callee) return `background:var(--surface2);color:var(--dim);`;
+        const call = MATRIX[caller]?.[callee];
+        if (call) {
+          const ms = MS[callee];
+          return `background:${ms.colorD};color:${ms.colorS};`;
+        }
+        return '';
+      };
+      tbody.innerHTML = rows.map(caller => `
     <tr>
       <td style="padding:8px 12px;color:${MS[caller].color};font-weight:500;border-bottom:1px solid var(--border);">MS${caller} · ${MS[caller].title.split(' ')[0]}</td>
       ${rows.map(callee => {
         const call = MATRIX[caller]?.[callee];
         const style = cellStyle(caller, callee);
-        return `<td style="padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);${style}font-family:var(--font-mono);font-size:10px;">${caller===callee ? '—' : (call || '')}</td>`;
+        return `<td style="padding:8px 12px;text-align:center;border-bottom:1px solid var(--border);${style}font-family:var(--font-mono);font-size:10px;">${caller === callee ? '—' : (call || '')}</td>`;
       }).join('')}
     </tr>`).join('');
-}
+    }
 
-function buildFileTree() {
-  const root = document.getElementById('file-tree-root');
-  root.innerHTML = renderTree(TREE, 0);
-}
+    function buildFileTree() {
+      const root = document.getElementById('file-tree-root');
+      root.innerHTML = renderTree(TREE, 0);
+    }
 
-function renderTree(nodes, depth) {
-  return nodes.map(node => {
-    const indent = '&nbsp;'.repeat(depth * 4);
-    if (node.type === 'root') {
-      return `<div class="tree-project-label">
+    function renderTree(nodes, depth) {
+      return nodes.map(node => {
+        const indent = '&nbsp;'.repeat(depth * 4);
+        if (node.type === 'root') {
+          return `<div class="tree-project-label">
         <span style="font-size:16px;">📦</span> ${node.label}
         <span class="badge">Maven multi-module</span>
       </div>
       ${renderTree(node.children, 0)}`;
-    }
-    if (node.type === 'ms') {
-      const ms = MS[node.n];
-      return `<div class="tree-ms-header" style="padding-left:${depth*16}px;">
+        }
+        if (node.type === 'ms') {
+          const ms = MS[node.n];
+          return `<div class="tree-ms-header" style="padding-left:${depth * 16}px;">
         <span class="tree-ms-badge" style="background:${ms.colorD};color:${ms.color};">M${node.n}</span>
         <span style="color:${ms.color};">${node.label}</span>
       </div>
-      ${renderTree(node.children, depth+1)}`;
-    }
-    if (node.type === 'folder') {
-      return `<div class="tree-item" style="padding-left:${depth*16+4}px;">
+      ${renderTree(node.children, depth + 1)}`;
+        }
+        if (node.type === 'folder') {
+          return `<div class="tree-item" style="padding-left:${depth * 16 + 4}px;">
         <span class="tree-icon">▾</span>
         <span class="tree-name folder">${node.name}</span>
       </div>
-      ${renderTree(node.children||[], depth+1)}`;
-    }
-    if (node.type === 'file') {
-      const extClass = node.ext || '';
-      return `<div class="tree-item" style="padding-left:${depth*16+4}px;">
+      ${renderTree(node.children || [], depth + 1)}`;
+        }
+        if (node.type === 'file') {
+          const extClass = node.ext || '';
+          return `<div class="tree-item" style="padding-left:${depth * 16 + 4}px;">
         <span class="tree-icon" style="color:var(--dim);">·</span>
         <span class="tree-name ${extClass}">${node.name}</span>
         ${node.comment ? `<span class="tree-comment">// ${node.comment}</span>` : ''}
       </div>`;
+        }
+        return '';
+      }).join('');
     }
-    return '';
-  }).join('');
-}
 
-function buildDockerCompose() {
-  document.getElementById('docker-body').innerHTML = DOCKER;
-}
+    function buildDockerCompose() {
+      document.getElementById('docker-body').innerHTML = DOCKER;
+    }
 
-function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.ms-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-'+id)?.classList.add('active');
-  document.getElementById('vbtn-'+id)?.classList.add('active');
-}
+    function showPanel(id) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.ms-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('panel-' + id)?.classList.add('active');
+      document.getElementById('vbtn-' + id)?.classList.add('active');
+    }
 
-function showMS(n) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.ms-btn').forEach(b => b.classList.remove('active'));
+    function showMS(n) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.ms-btn').forEach(b => b.classList.remove('active'));
 
-  const btn = document.getElementById('msbtn-'+n);
-  if (btn) btn.classList.add('active');
+      const btn = document.getElementById('msbtn-' + n);
+      if (btn) btn.classList.add('active');
 
-  const ms = MS[n];
-  const panel = document.getElementById('panel-ms');
-  panel.classList.add('active');
-  panel.innerHTML = renderMSDetail(ms, n);
-  // Activate first tab
-  switchTab(n, 'endpoints');
-}
+      const ms = MS[n];
+      const panel = document.getElementById('panel-ms');
+      panel.classList.add('active');
+      panel.innerHTML = renderMSDetail(ms, n);
+      // Activate first tab
+      switchTab(n, 'endpoints');
+    }
 
-function switchTab(n, tab) {
-  const ms = MS[n];
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  const activeColor = ms.color.replace('var(', '').replace(')', '');
-  document.getElementById(`tab-${tab}-${n}`)?.classList.add('active');
-  document.getElementById(`tabp-${tab}-${n}`)?.classList.add('active');
-}
+    function switchTab(n, tab) {
+      const ms = MS[n];
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      const activeColor = ms.color.replace('var(', '').replace(')', '');
+      document.getElementById(`tab-${tab}-${n}`)?.classList.add('active');
+      document.getElementById(`tabp-${tab}-${n}`)?.classList.add('active');
+    }
 
-function renderMSDetail(ms, n) {
-  const tabs = ['endpoints','database','comms','code'];
-  const tabLabels = { endpoints:'Endpoints', database:'Base de données', comms:'Communications', code:'Code' };
+    function renderMSDetail(ms, n) {
+      const tabs = ['endpoints', 'database', 'comms', 'code'];
+      const tabLabels = { endpoints: 'Endpoints', database: 'Base de données', comms: 'Communications', code: 'Code' };
 
-  return `
+      return `
   <div class="detail-header">
     <div class="detail-badge" style="background:${ms.colorD};color:${ms.color};">${ms.num}</div>
     <div>
@@ -1336,7 +1923,7 @@ function renderMSDetail(ms, n) {
 
   <div class="tabs" style="--active-tab-color:${ms.color};">
     ${tabs.map(t => `
-      <button class="tab ${t==='endpoints'?'active':''}" id="tab-${t}-${n}"
+      <button class="tab ${t === 'endpoints' ? 'active' : ''}" id="tab-${t}-${n}"
         onclick="switchTab(${n},'${t}')">${tabLabels[t]}</button>
     `).join('')}
   </div>
@@ -1382,7 +1969,7 @@ function renderMSDetail(ms, n) {
     `).join('')}
     <div style="font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--font-mono);">
       application.properties :
-      spring.datasource.url=jdbc:mysql://localhost${ms.port.replace('80','330')}/... (voir Docker Compose)
+      spring.datasource.url=jdbc:mysql://localhost${ms.port.replace('80', '330')}/... (voir Docker Compose)
     </div>
   </div>
 
@@ -1428,23 +2015,24 @@ function renderMSDetail(ms, n) {
         &nbsp;&nbsp;├── repository/ &nbsp;<span style="color:var(--muted);">(${cap(ms.pkg)}Repository.java — JpaRepository)</span><br>
         &nbsp;&nbsp;├── entity/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted);">(entités JPA @Entity)</span><br>
         &nbsp;&nbsp;├── dto/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted);">(objets de transfert)</span><br>
-        ${(n===1||n===2||n===5)?`&nbsp;&nbsp;└── client/ &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted);">(RestTemplate vers autres MS)</span>`:
-        `&nbsp;&nbsp;└── exception/ <span style="color:var(--muted);">(ResourceNotFoundException…)</span>`}
+        ${(n === 1 || n === 2 || n === 5) ? `&nbsp;&nbsp;└── client/ &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted);">(RestTemplate vers autres MS)</span>` :
+          `&nbsp;&nbsp;└── exception/ <span style="color:var(--muted);">(ResourceNotFoundException…)</span>`}
       </div>
     </div>
   </div>`;
-}
+    }
 
-function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+    function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-// ══════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  buildMatrix();
-  buildFileTree();
-  buildDockerCompose();
-});
-</script>
+    // ══════════════════════════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', () => {
+      buildMatrix();
+      buildFileTree();
+      buildDockerCompose();
+    });
+  </script>
 </body>
+
 </html>
