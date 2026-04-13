@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+      routes:
+        - id: ms1-incidents
+          uri: https://flakily-rotunda-skid.ngrok-free.dev # Pointe vers le MS1 lointain
+          predicates:
+            - Path=/api/incidents/**
+            
+        - id: ms2-affectations
+          uri: http://localhost:8082 # MS2 actuel qui tourne localement
+          predicates:
+            - Path=/api/affectations/**
+            
+        - id: ms3-techniciens
+          uri: http://localhost:8083 # MS3 futur/existant
+          predicates:
+            - Path=/api/techniciens/**

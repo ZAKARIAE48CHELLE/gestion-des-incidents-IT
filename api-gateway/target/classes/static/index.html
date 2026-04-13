@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MS2 - Affectation & Traitement</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --header-bg: #1e3046;
+      --text-main: #2c3e50;
+      --text-mut: #7f8c8d;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+
+      --color-primary: #1e3046;
+      --color-success: #27ae60;
+      --color-warning: #f39c12;
+      --color-danger: #e74c3c;
+      --color-info: #3498db;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+    }
+
+    /* Header */
+    .header {
+      background-color: var(--header-bg);
+      color: white;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+    }
+
+    .header-left h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .header-left p {
+      margin: 4px 0 0 0;
+      font-size: 0.8rem;
+      color: #9cb0c4;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.85rem;
+      color: #9cb0c4;
+    }
+
+    .btn-dark {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-dark:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Container layout */
+    .container {
+      padding: 32px;
+      max-width: 1600px;
+      margin: 0 auto;
+      display: grid;
+      gap: 24px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+    }
+
+    .stat-card.total::before {
+      background-color: var(--color-primary);
+    }
+
+    .stat-card.active::before {
+      background-color: var(--color-success);
+    }
+
+    .stat-card.blocked::before {
+      background-color: var(--color-danger);
+    }
+
+    .stat-card.closed::before {
+      background-color: var(--color-warning);
+    }
+
+    .stat-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-mut);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-mut);
+    }
+
+    /* Panels */
+    .panel-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .panel-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .panel-body {
+      padding: 24px;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 24px;
+      color: var(--text-mut);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background-color: #f8fafc;
+    }
+
+    /* Status Pills */
+    .status-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-en_attente {
+      background-color: #fef08a;
+      color: #854d0e;
+    }
+
+    .status-en_cours {
+      background-color: #bfdbfe;
+      color: #1e40af;
+    }
+
+    .status-resolu {
+      background-color: #bbf7d0;
+      color: #166534;
+    }
+
+    .status-bloque {
+      background-color: #fecaca;
+      color: #991b1b;
+    }
+
+    .status-cloture {
+      background-color: #e2e8f0;
+      color: #475569;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--color-info);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background-color: #f8fafc;
+    }
+
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.15s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal {
+      background: var(--card-bg);
+      width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      animation: slideUp 0.15s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--text-main);
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-mut);
+      line-height: 1;
+      padding: 0;
+    }
+
+    .btn-close:hover {
+      color: var(--color-danger);
+    }
+
+    .modal-body {
+      padding: 24px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .detail-row {
+      margin-bottom: 12px;
+      display: flex;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: var(--text-mut);
+      width: 160px;
+      flex-shrink: 0;
+    }
+
+    .detail-value {
+      color: var(--text-main);
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    /* Alert Banner */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .alert.success {
+      background-color: #d1fae5;
+      color: #065f46;
+      display: block;
+    }
+
+    .alert.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <h1>MS2 — Affectation & Traitement</h1>
+      <p>Tableau de bord de gestion des incidents IT</p>
+    </div>
+    <div class="header-right">
+      <span id="update-time">Mis à jour à --:--:--</span>
+      <button class="btn-dark" onclick="loadData(true)">Actualiser</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Top Stats -->
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-title">TOTAL AFFECTATIONS</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-subtitle">enregistrées dans MS2</div>
+      </div>
+      <div class="stat-card active">
+        <div class="stat-title">EN COURS</div>
+        <div class="stat-value" id="stat-active">0</div>
+        <div class="stat-subtitle">traitement actif</div>
+      </div>
+      <div class="stat-card blocked">
+        <div class="stat-title">BLOQUÉES</div>
+        <div class="stat-value" id="stat-blocked">0</div>
+        <div class="stat-subtitle">nécessitent une attention</div>
+      </div>
+      <div class="stat-card closed">
+        <div class="stat-title">CLÔTURÉES</div>
+        <div class="stat-value" id="stat-closed">0</div>
+        <div class="stat-subtitle">incidents terminés</div>
+      </div>
+    </div>
+
+    <div id="alert-banner" class="alert"></div>
+
+    <!-- Middle Panels -->
+    <div class="panel-row">
+      <!-- Create affectation -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Nouvelle affectation</h2>
+        </div>
+        <div class="panel-body">
+          <form id="form-create">
+            <div class="flex-row">
+              <div class="form-group" style="flex: 2;">
+                <label>Sélectionner la Panne (MS1)</label>
+                <select name="incidentId" class="form-control" id="select-create-incident" required>
+                  <option value="">Chargement...</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Technicien ID (MS3)</label>
+                <input type="number" name="technicienId" class="form-control" required>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Équipe ID (Optionnel)</label>
+                <input type="number" name="equipeId" class="form-control">
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Créer</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Simulator details -->
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Historique par incident</h2>
+        </div>
+        <div class="panel-body">
+          <form id="form-history" style="display: flex; gap: 12px; margin-bottom: 16px;">
+            <select name="incidentId" class="form-control" id="select-history-incident" required
+              style="max-width: 300px;">
+              <option value="">Sélectionnez un incident</option>
+            </select>
+            <button type="submit" class="btn btn-outline">Rechercher</button>
+          </form>
+          <div id="history-results"
+            style="font-size: 0.85rem; color: var(--text-mut); background: #f8fafc; padding: 12px; border-radius: 4px; border: 1px dashed var(--border);">
+            Saisissez un incident pour visualiser son parcours complet.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Liste des Affectations</h2>
+        <span id="table-count" style="font-size: 0.8rem; color: var(--text-mut);">0 affectation(s) trouvée(s)</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Incident</th>
+              <!-- <th>Description</th> -->
+              <th>Équipement</th>
+              <th>Technicien</th>
+              <th>Équipe</th>
+              <th>Date Affectation</th>
+              <th>Statut</th>
+              <th>Action / Clôture</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Rows will be injected here -->
+          </tbody>
+        </table>
+      </div>
+      <div id="table-empty" style="padding: 40px; text-align: center; color: var(--text-mut); display: none;">
+        Aucune affectation trouvée
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal Détails -->
+  <div id="details-modal" class="modal-backdrop hidden" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Détails de l'Affectation</h2>
+        <button class="btn-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body" id="modal-body-content">
+        <!-- dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const api = "/api/affectations";
+    let currentData = [];
+    const $ = s => document.querySelector(s);
+
+    // Setup formatters
+    const dtFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short" });
+    const fmt = v => !v ? "-" : isNaN(new Date(v)) ? v : dtFormatter.format(new Date(v));
+
+    function setTime() {
+      const now = new Date();
+      $("#update-time").textContent = `Mis à jour à ${now.toLocaleTimeString("fr-FR")}`;
+    }
+
+    function showAlert(msg, type = "success") {
+      const b = $("#alert-banner");
+      b.className = `alert ${type}`;
+      b.textContent = msg;
+      setTimeout(() => b.className = "alert", 4000);
+    }
+
+    async function req(url, opt = {}) {
+      const r = await fetch(url, {
+        headers: { "Content-Type": "application/json", ...(opt.headers || {}) },
+        ...opt
+      });
+      if (!r.ok) {
+        let msg = `Erreur ${r.status}`;
+        try { msg = (await r.json()).message || msg; } catch (e) { }
+        throw new Error(msg);
+      }
+      const text = await r.text();
+      return text ? JSON.parse(text) : null;
+    }
+
+    let incidentMap = {};
+
+    async function loadIncidents() {
+      try {
+        const incidents = await req(`${api}/incidents/a-affecter`);
+        const selCreate = $("#select-create-incident");
+        const selHist = $("#select-history-incident");
+
+        selCreate.innerHTML = '<option value="">Sélectionnez un incident en panne...</option>';
+        selHist.innerHTML = '<option value="">Sélectionnez un incident pour l\'historique...</option>';
+
+        incidents.forEach(inc => {
+          incidentMap[inc.id] = inc.titre;
+          const label = `[MS1-${inc.id}] ${inc.titre}`.substring(0, 60);
+          selCreate.insertAdjacentHTML('beforeend', `<option value="${inc.id}">${label}</option>`);
+          selHist.insertAdjacentHTML('beforeend', `<option value="${inc.id}">${label}</option>`);
+        });
+      } catch (err) {
+        console.error("Erreur chargement incidents", err);
+        $("#select-create-incident").innerHTML = '<option value="">Erreur de chargement MS1</option>';
+      }
+    }
+
+    async function loadData(manual = false) {
+      if (manual) showAlert("Actualisation en cours...", "success");
+      try {
+        const data = await req(api);
+        currentData = data;
+        renderStats(data);
+        renderTable(data);
+        setTime();
+        if (manual) showAlert("Données synchronisées avec succès.", "success");
+      } catch (err) {
+        showAlert(err.message, "error");
+      }
+    }
+
+    function renderStats(data) {
+      const byStatus = data.reduce((acc, i) => {
+        acc[i.statut] = (acc[i.statut] || 0) + 1;
+        return acc;
+      }, {});
+      $("#stat-total").textContent = data.length;
+      $("#stat-active").textContent = byStatus["EN_COURS"] || 0;
+      $("#stat-blocked").textContent = byStatus["BLOQUE"] || 0;
+      $("#stat-closed").textContent = byStatus["CLOTURE"] || 0;
+      $("#table-count").textContent = `${data.length} affectation(s) trouvée(s)`;
+    }
+
+    function renderTable(data) {
+      const tbody = $("#table-body");
+      const empty = $("#table-empty");
+      tbody.innerHTML = "";
+
+      if (!data.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+
+      data.sort((a, b) => (b.id || 0) - (a.id || 0)).forEach(item => {
+        const tr = document.createElement("tr");
+
+        let actionsHtml = "";
+        if (item.statut === "EN_ATTENTE") {
+          actionsHtml = `<button class="btn btn-sm btn-outline" onclick="changeStatus(${item.id}, 'EN_COURS')">Démarrer</button>`;
+        } else if (item.statut === "EN_COURS") {
+          actionsHtml = `
+            <button class="btn btn-sm btn-outline" onclick="changeStatus(${item.id}, 'RESOLU')">Résoudre</button>
+            <button class="btn btn-sm btn-outline" style="color:var(--color-danger);border-color:var(--border);" onclick="changeStatus(${item.id}, 'BLOQUE')">Bloquer</button>
+          `;
+        } else if (item.statut === "BLOQUE") {
+          actionsHtml = `<button class="btn btn-sm btn-outline" onclick="changeStatus(${item.id}, 'EN_COURS')">Reprendre</button>`;
+        } else if (item.statut === "RESOLU") {
+          actionsHtml = `<button class="btn btn-sm btn-primary" onclick="cloturer(${item.id})">Clôturer</button>`;
+        } else if (item.statut === "CLOTURE") {
+          actionsHtml = `<span style="font-size:0.8rem;color:var(--text-mut);">${item.noteCloture || 'Sans note'}</span>`;
+        }
+
+        // <td><small style="color:var(--text-mut);display:block;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.description?.replace(/"/g, '&quot;') || ''}">${item.description || '-'}</small></td>
+        tr.innerHTML = `
+          <td style="font-weight:600; color: var(--color-info);">#${item.id}</td>
+          <td><strong>${item.incidentTitre || incidentMap[item.incidentId] || ('Panne N°' + item.incidentId)}</strong></td>
+          <td>${item.equipementId ? 'Eqp-' + item.equipementId : '-'}</td>
+          <td>Tech-${item.technicienId}</td>
+          <td>${item.equipeId ? 'Eq-' + item.equipeId : '-'}</td>
+          <td style="color:var(--text-mut);">${fmt(item.dateAffectation)}</td>
+          <td><span class="status-pill status-${item.statut.toLowerCase()}">${item.statut.replace('_', ' ')}</span></td>
+          <td style="display:flex;gap:8px;min-height:38px;align-items:center;">${actionsHtml}</td>
+        `;
+        // Row interaction
+        tr.style.cursor = "pointer";
+        tr.onclick = (e) => {
+          if (e.target.tagName !== 'BUTTON') showDetails(item.id);
+        };
+        tbody.appendChild(tr);
+      });
+    }
+
+    function showDetails(id) {
+      const item = currentData.find(i => i.id === id);
+      if (!item) return;
+
+      $("#modal-title").innerText = `Affectation #${item.id}`;
+      $("#modal-body-content").innerHTML = `
+        <div class="detail-row"><span class="detail-label">Statut:</span> <span class="status-pill status-${item.statut.toLowerCase()}">${item.statut.replace('_', ' ')}</span></div>
+        <hr style="border:0;border-top:1px solid var(--border);margin:16px 0;">
+        <div class="detail-row"><span class="detail-label">Incident MS1:</span> <span class="detail-value">#${item.incidentId}</span></div>
+        <div class="detail-row"><span class="detail-label">Titre (Panne):</span> <span class="detail-value"><strong>${item.incidentTitre || incidentMap[item.incidentId] || 'Panne N°' + item.incidentId}</strong></span></div>
+        <div class="detail-row"><span class="detail-label">Équipement ID:</span> <span class="detail-value">${item.equipementId ? 'Eqp-' + item.equipementId : '-'}</span></div>
+        <div class="detail-row" style="flex-direction:column;">
+          <span class="detail-label" style="margin-bottom:6px;">Description détaillée:</span>
+          <div style="background:#f1f5f9;padding:12px;border-radius:6px;border:1px solid #cbd5e1;white-space:pre-wrap;color:#334155;font-family:monospace;font-size:0.85rem;">${item.description || '-'}</div>
+        </div>
+        <hr style="border:0;border-top:1px solid var(--border);margin:16px 0;">
+        <div class="detail-row"><span class="detail-label">Technicien:</span> <span class="detail-value">Tech-${item.technicienId}</span></div>
+        <div class="detail-row"><span class="detail-label">Équipe (MS3):</span> <span class="detail-value">${item.equipeId ? 'Eq-' + item.equipeId : '-'}</span></div>
+        <div class="detail-row"><span class="detail-label">Date Affectation:</span> <span class="detail-value">${fmt(item.dateAffectation)}</span></div>
+        <div class="detail-row"><span class="detail-label">Date Fin:</span> <span class="detail-value">${fmt(item.dateFin)}</span></div>
+        ${item.noteCloture ? `<div class="detail-row"><span class="detail-label">Note Clôture:</span> <div class="detail-value" style="background:#fef08a;padding:8px 12px;border-radius:4px;color:#854d0e;margin-top:4px;">${item.noteCloture}</div></div>` : ''}
+      `;
+      $("#details-modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      $("#details-modal").classList.add("hidden");
+    }
+
+    async function changeStatus(id, newStatus) {
+      try {
+        await req(`${api}/${id}/statut`, {
+          method: "PUT",
+          body: JSON.stringify({ statut: newStatus })
+        });
+        showAlert(`Affectation #${id} passée en ${newStatus.replace('_', ' ')}.`);
+        loadData();
+      } catch (err) {
+        showAlert(err.message, "error");
+      }
+    }
+
+    async function cloturer(id) {
+      const note = prompt(`Clôture de l'affectation #${id}\nEntrez une note de clôture (optionnelle) :`);
+      if (note === null) return; // Cancelled
+      try {
+        await req(`${api}/${id}/cloturer`, {
+          method: "PUT",
+          body: JSON.stringify({
+            noteCloture: note.trim() || null,
+            dateFin: new Date().toISOString().slice(0, 16) + ":00" // YYYY-MM-DDThh:mm:ss
+          })
+        });
+        showAlert(`Affectation #${id} clôturée avec succès.`);
+        loadData();
+      } catch (err) {
+        showAlert(err.message, "error");
+      }
+    }
+
+    // Forms
+    $("#form-create").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const payload = {
+        incidentId: Number(fd.get("incidentId")),
+        technicienId: Number(fd.get("technicienId")),
+        equipeId: fd.get("equipeId") ? Number(fd.get("equipeId")) : null
+      };
+      try {
+        await req(api, { method: "POST", body: JSON.stringify(payload) });
+        showAlert("Nouvelle affectation créée.", "success");
+        e.target.reset();
+        loadIncidents();
+        loadData();
+      } catch (err) {
+        showAlert(err.message, "error");
+      }
+    });
+
+    $("#form-history").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = Number(new FormData(e.target).get("incidentId"));
+      const res = $("#history-results");
+      try {
+        res.innerHTML = "<em>Recherche en cours...</em>";
+        const items = await req(`${api}/incident/${id}`);
+        if (!items.length) {
+          res.innerHTML = `Aucune affectation trouvée pour l'incident MS1-${id}`;
+          return;
+        }
+        res.innerHTML = items.sort((a, b) => a.id - b.id).map(i =>
+          `<div style="padding:6px 0;border-bottom:1px solid var(--border);">
+            <strong>#${i.id}</strong> — <span class="status-pill status-${i.statut.toLowerCase()}" style="font-size:0.65rem;padding:2px 8px;">${i.statut.replace('_', ' ')}</span>
+            <span style="margin-left:8px;">Tech-${i.technicienId}</span>
+          </div>`
+        ).join("");
+      } catch (err) {
+        res.innerHTML = `<span style="color:var(--color-danger)">${err.message}</span>`;
+      }
+    });
+
+    // Init
+    document.addEventListener("DOMContentLoaded", () => {
+      loadIncidents().then(() => loadData());
+      setTime();
+      setInterval(setTime, 60000); // update clock every minute
+    });
+  </script>
+</body>
+
+</html>

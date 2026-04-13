@@ -1,0 +1,2 @@
+com\incidents\gateway\config\EmbeddedKafkaConfig.class
+com\incidents\gateway\ApiGatewayApplication.class
