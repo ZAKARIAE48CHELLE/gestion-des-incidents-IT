@@ -1285,7 +1285,7 @@
           }
         ],
         comms: [
-          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/users/{id}/validate — Vérifier que le demandeur existe', color: 'var(--ms3)' },
+          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/utilisateurs/{id}/validate — Vérifier que le demandeur existe', color: 'var(--ms3)' },
           { dir: '→', target: 'MS4 :8084', desc: 'GET /api/equipements/{id}/exists — Vérifier l\'équipement', color: 'var(--ms4)' },
           { dir: '→', target: 'MS5 :8085', desc: 'POST /api/notifications/events — Événement création incident', color: 'var(--ms5)' },
         ],
@@ -1354,7 +1354,7 @@
         ],
         comms: [
           { dir: '→', target: 'MS1 :8081', desc: 'GET /api/incidents/{id} — Récupérer les infos de l\'incident avant affectation', color: 'var(--ms1)' },
-          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/users/{id}/validate — Vérifier le technicien assigné', color: 'var(--ms3)' },
+          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/utilisateurs/{id}/validate — Vérifier le technicien assigné', color: 'var(--ms3)' },
           { dir: '→', target: 'MS5 :8085', desc: 'POST /api/notifications/events — Événements : affectation, changement état, clôture', color: 'var(--ms5)' },
         ],
         code: {
@@ -1398,10 +1398,10 @@
         module: 'ms3-utilisateurs',
         pkg: 'utilisateurs',
         endpoints: [
-          { m: 'POST', p: '/api/users', d: 'Créer un utilisateur ou technicien' },
-          { m: 'GET', p: '/api/users', d: 'Lister tous les utilisateurs' },
-          { m: 'GET', p: '/api/users/{id}', d: 'Détail d\'un utilisateur' },
-          { m: 'GET', p: '/api/users/{id}/validate', d: 'Valider l\'existence (utilisé par MS1/MS2)' },
+          { m: 'POST', p: '/api/utilisateurs', d: 'Créer un utilisateur ou technicien' },
+          { m: 'GET', p: '/api/utilisateurs', d: 'Lister tous les utilisateurs' },
+          { m: 'GET', p: '/api/utilisateurs/{id}', d: 'Détail d\'un utilisateur' },
+          { m: 'GET', p: '/api/utilisateurs/{id}/validate', d: 'Valider l\'existence (utilisé par MS1/MS2)' },
           { m: 'POST', p: '/api/equipes', d: 'Créer une équipe technique' },
           { m: 'GET', p: '/api/equipes', d: 'Lister les équipes' },
           { m: 'GET', p: '/api/equipes/{id}', d: 'Détail d\'une équipe' },
@@ -1429,13 +1429,13 @@
         comms: [
           { dir: '←', target: 'MS1 :8081', desc: 'Reçoit GET /validate — appelé lors de la déclaration d\'un incident', color: 'var(--ms1)' },
           { dir: '←', target: 'MS2 :8082', desc: 'Reçoit GET /validate — appelé lors de l\'affectation d\'un technicien', color: 'var(--ms2)' },
-          { dir: '←', target: 'MS5 :8085', desc: 'Peut recevoir GET /users/{id} pour enrichir les notifications', color: 'var(--ms5)' },
+          { dir: '←', target: 'MS5 :8085', desc: 'Peut recevoir GET /utilisateurs/{id} pour enrichir les notifications', color: 'var(--ms5)' },
         ],
         code: {
           filename: 'UserController.java',
           lang: 'Java',
           body: `<span class="an">@RestController</span>
-<span class="an">@RequestMapping</span>(<span class="st">"/api/users"</span>)
+<span class="an">@RequestMapping</span>(<span class="st">"/api/utilisateurs"</span>)
 <span class="kw">public class</span> <span class="cl">UserController</span> {
 
     <span class="an">@Autowired</span>
@@ -1576,7 +1576,7 @@
         comms: [
           { dir: '←', target: 'MS1 :8081', desc: 'Reçoit POST /events de type CREATION_INCIDENT', color: 'var(--ms1)' },
           { dir: '←', target: 'MS2 :8082', desc: 'Reçoit POST /events de type AFFECTATION, MAJ_STATUT, CLOTURE', color: 'var(--ms2)' },
-          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/users/{id} — Pour enrichir les notifications avec le nom de l\'acteur', color: 'var(--ms3)' },
+          { dir: '→', target: 'MS3 :8083', desc: 'GET /api/utilisateurs/{id} — Pour enrichir les notifications avec le nom de l\'acteur', color: 'var(--ms3)' },
         ],
         code: {
           filename: 'NotificationService.java',
@@ -1619,7 +1619,7 @@
       2: { 1: 'GET /{id}', 3: 'GET /validate', 5: 'POST /events' },
       3: {},
       4: {},
-      5: { 3: 'GET /users/{id}' }
+      5: { 3: 'GET /utilisateurs/{id}' }
     };
 
     // ══════════════════════════════════════════════════════════
@@ -1774,7 +1774,7 @@
     <span class="dk-key">build</span>: <span class="dk-str">./ms3-utilisateurs</span>
     <span class="dk-key">ports</span>: [<span class="dk-str">"8083:8083"</span>]
     <span class="dk-key">environment</span>:
-      <span class="dk-key">SPRING_DATASOURCE_URL</span>: <span class="dk-str">jdbc:mysql://db-users:3306/users_db</span>
+      <span class="dk-key">SPRING_DATASOURCE_URL</span>: <span class="dk-str">jdbc:mysql://db-users:3306/utilisateurs_db</span>
     <span class="dk-key">depends_on</span>: [<span class="dk-str">db-users</span>]
 
   <span class="dk-key">ms4-equipements</span>:

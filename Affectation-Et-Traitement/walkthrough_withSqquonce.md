@@ -228,7 +228,7 @@ AffectationResponse.builder()
 
 #### [ValidationResponse.java](file:///d:/EMSI/S8/System%20distri/Projet/gestion-des-incidents-IT/Affectation-Et-Traitement/src/main/java/com/incidents/ms2/affectation/dto/ValidationResponse.java)
 
-> Réponse de MS3 sur `GET /api/users/{id}/validate` :
+> Réponse de MS3 sur `GET /api/utilisateurs/{id}/validate` :
 
 ```json
 { "id": 2, "exists": true }
@@ -267,7 +267,7 @@ Si MS1 est down → lance `ServiceUnavailableException` (réponse 503).
 
 #### [UserClient.java](file:///d:/EMSI/S8/System%20distri/Projet/gestion-des-incidents-IT/Affectation-Et-Traitement/src/main/java/com/incidents/ms2/affectation/client/UserClient.java) → MS3
 
-> Appelle `GET http://ms3:8083/api/users/{id}/validate` pour vérifier que le technicien assigné existe.
+> Appelle `GET http://ms3:8083/api/utilisateurs/{id}/validate` pour vérifier que le technicien assigné existe.
 
 Si MS3 est down → lance `ServiceUnavailableException` (réponse 503).
 
@@ -391,7 +391,7 @@ sequenceDiagram
     Client->>MS2: POST /api/affectations<br/>{ incidentId: 1, technicienId: 2 }
     MS2->>MS1: GET /api/incidents/1
     MS1-->>MS2: { id: 1, titre: "Switch HS" } ✅
-    MS2->>MS3: GET /api/users/2/validate
+    MS2->>MS3: GET /api/utilisateurs/2/validate
     MS3-->>MS2: { id: 2, exists: true } ✅
     MS2->>DB: INSERT affectation (statut: EN_ATTENTE)
     MS2->>MS5: POST /events { type: AFFECTATION }

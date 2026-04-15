@@ -71,4 +71,33 @@ public class IncidentClient {
             throw new ServiceUnavailableException("MS1 (Déclaration) indisponible — réessayer plus tard");
         }
     }
+
+    /** Update incident state to EN_COURS in MS1 when assigned in MS2. */
+    public void updateIncidentToAffectee(Long id) {
+        try {
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.set("ngrok-skip-browser-warning", "69420");
+            headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+            
+            // MS1 expects a JSON body: {"statut": "EN_COURS"}
+            String requestBody = "{\"statut\":\"EN_COURS\"}";
+            
+            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(requestBody, headers);
+            
+            restTemplate.exchange(
+                    ms1Url + "/api/incidents/" + id + "/statut",
+                    org.springframework.http.HttpMethod.PUT,
+                    entity,
+                    String.class
+            );
+            System.out.println("✅ Succès: l'incident #" + id + " est passé en EN_COURS dans MS1 !");
+        } catch (org.springframework.web.client.HttpStatusCodeException e) {
+            System.err.println("❌ Erreur MS1 - Http status: " + e.getStatusCode());
+            System.err.println("❌ Erreur MS1 - Body response: " + e.getResponseBodyAsString());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("❌ Erreur inattendue dans MS1 : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

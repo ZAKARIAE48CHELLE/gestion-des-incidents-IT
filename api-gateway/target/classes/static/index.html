@@ -683,7 +683,7 @@
 
     async function loadUsers() {
       try {
-        const users = await req(`/api/users`);
+        const users = await req(`/api/utilisateurs`);
         const techniciens = users.filter(u => u.role === 'TECHNICIEN');
 
         const selTech = $("#select-technicien");
@@ -831,7 +831,7 @@
                     <td style="padding:8px 12px;font-weight:600;font-size:0.8rem;color:var(--color-info);">#${h.id}</td>
                     <td style="padding:8px 12px;font-size:0.8rem;">${h.incidentTitre || 'Panne N°' + h.incidentId}</td>
                     <td style="padding:8px 12px;font-size:0.8rem;color:var(--text-mut);">${fmt(h.dateAffectation)}</td>
-                    <td style="padding:8px 12px;font-size:0.8rem;">Tech-${h.technicienId}</td>
+                    <td style="padding:8px 12px;font-size:0.8rem;">${technicienMap[h.technicienId] || 'Tech-' + h.technicienId}</td>
                     <td style="padding:8px 12px;text-align:right;"><span class="status-pill status-${h.statut.toLowerCase()}" style="font-size:0.6rem;padding:2px 8px;">${h.statut.replace('_', ' ')}</span></td>
                   </tr>
                 `).join('');

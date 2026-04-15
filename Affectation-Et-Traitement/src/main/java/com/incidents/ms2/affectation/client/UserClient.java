@@ -31,7 +31,7 @@ public class UserClient {
 
         try {
             return restTemplate.getForObject(
-                ms3Url + "/api/users/" + userId + "/validate",
+                ms3Url + "/api/utilisateurs/" + userId + "/validate",
                 ValidationResponse.class
             );
         } catch (ResourceAccessException e) {

@@ -317,9 +317,9 @@ public class UserClient {
 
     public ValidationResponse validate(Long userId) {
         try {
-            // Appelle : GET http://localhost:8083/api/users/2/validate
+            // Appelle : GET http://localhost:8083/api/utilisateurs/2/validate
             return restTemplate.getForObject(
-                ms3Url + "/api/users/" + userId + "/validate",
+                ms3Url + "/api/utilisateurs/" + userId + "/validate",
                 ValidationResponse.class
             );
         } catch (ResourceAccessException e) {
@@ -335,7 +335,7 @@ public class UserClient {
 ### Ce qui se passe concrètement
 
 ```
-MS2 envoie :  GET http://localhost:8083/api/users/2/validate
+MS2 envoie :  GET http://localhost:8083/api/utilisateurs/2/validate
               ─────────────────────────────────────────────→
 
 MS3 répond :  200 OK
@@ -497,7 +497,7 @@ public AffectationResponse create(AffectationRequest request) {
     // ÉTAPE 2 : Vérifier que le technicien existe (appel HTTP → MS3)
     // ══════════════════════════════════════════════════════════
     ValidationResponse validation = userClient.validate(request.getTechnicienId());
-    //                              └──── GET http://localhost:8083/api/users/2/validate
+    //                              └──── GET http://localhost:8083/api/utilisateurs/2/validate
 
     if (validation == null || !validation.isExists()) {
         throw new ResourceNotFoundException(
@@ -554,7 +554,7 @@ sequenceDiagram
     S->>MS1: GET /api/incidents/1
     MS1-->>S: { id:1, titre:"Switch HS" } ✅
     
-    S->>MS3: GET /api/users/2/validate
+    S->>MS3: GET /api/utilisateurs/2/validate
     MS3-->>S: { id:2, exists:true } ✅
     
     S->>DB: INSERT INTO affectations
@@ -917,7 +917,7 @@ sequenceDiagram
     Client->>MS2: POST /api/affectations<br/>{ incidentId: 1, technicienId: 2 }
     MS2->>MS1: GET /api/incidents/1
     MS1-->>MS2: { id: 1, titre: "Switch HS" } ✅
-    MS2->>MS3: GET /api/users/2/validate
+    MS2->>MS3: GET /api/utilisateurs/2/validate
     MS3-->>MS2: { id: 2, exists: true } ✅
     MS2->>DB: INSERT affectation (statut: EN_ATTENTE)
     MS2->>MS5: POST /events { type: AFFECTATION }

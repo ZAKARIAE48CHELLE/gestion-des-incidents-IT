@@ -31,7 +31,7 @@ spring:
         - id: ms3-users
           uri: https://doorstep-bobsled-nutrient.ngrok-free.dev # MS Users (techniciens/equipes)
           predicates:
-            - Path=/api/users/**
+            - Path=/api/utilisateurs/**, /api/equipes/**
 
         - id: ms4-notifications
           uri: https://knapsack-cesspool-gangly.ngrok-free.dev # MS Notifications

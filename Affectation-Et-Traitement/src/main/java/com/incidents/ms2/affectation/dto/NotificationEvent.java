@@ -5,6 +5,7 @@ public class NotificationEvent {
     private Long incidentId;
     private Long acteurId;
     private String statut;
+    private String message;
 
     // ─── Builder ─────────────────────────────────────────────────────────────────
 
@@ -17,6 +18,7 @@ public class NotificationEvent {
         public Builder incidentId(Long v)   { obj.incidentId = v; return this; }
         public Builder acteurId(Long v)     { obj.acteurId = v; return this; }
         public Builder statut(String v)     { obj.statut = v; return this; }
+        public Builder message(String v)    { obj.message = v; return this; }
 
         public NotificationEvent build() { return obj; }
     }
@@ -34,4 +36,7 @@ public class NotificationEvent {
 
     public String getStatut() { return statut; }
     public void setStatut(String statut) { this.statut = statut; }
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 }

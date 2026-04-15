@@ -25,10 +25,10 @@ ms1:
   url: ${MS1_URL:https://flakily-rotunda-skid.ngrok-free.dev}
 
 ms3:
-  url: ${MS3_URL:http://localhost:8083}
+  url: ${MS3_URL:https://doorstep-bobsled-nutrient.ngrok-free.dev}
 
 ms5:
-  url: ${MS5_URL:http://localhost:8085}
+  url: ${MS5_URL:https://knapsack-cesspool-gangly.ngrok-free.dev}
 
 # Swagger UI
 springdoc:

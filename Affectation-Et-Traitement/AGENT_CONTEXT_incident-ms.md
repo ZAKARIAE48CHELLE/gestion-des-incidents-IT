@@ -102,7 +102,7 @@ public class Incident {
 
 **Communications sortantes (appels que MS1 fait) :**
 ```
-MS1 → MS3 : GET http://ms3-utilisateurs:8083/api/users/{demandeurId}/validate
+MS1 → MS3 : GET http://ms3-utilisateurs:8083/api/utilisateurs/{demandeurId}/validate
              → Réponse : { "id": 1, "exists": true }
              → Si false : rejeter la création (400 Bad Request)
 
@@ -175,7 +175,7 @@ public class Affectation {
 MS2 → MS1 : GET http://ms1-declaration:8081/api/incidents/{incidentId}
              → Récupérer les infos de l'incident avant de créer l'affectation
 
-MS2 → MS3 : GET http://ms3-utilisateurs:8083/api/users/{technicienId}/validate
+MS2 → MS3 : GET http://ms3-utilisateurs:8083/api/utilisateurs/{technicienId}/validate
              → Vérifier que le technicien existe (même endpoint que MS1)
 
 MS2 → MS5 : POST http://ms5-notifications:8085/api/notifications/events
@@ -226,10 +226,10 @@ Table `equipes` : id, nom, responsable_id(FK→utilisateurs.id), description
 **Endpoints exposés :**
 | Méthode | URL | Description |
 |---|---|---|
-| POST | /api/users | Créer un utilisateur / technicien |
-| GET | /api/users | Lister tous les utilisateurs |
-| GET | /api/users/{id} | Détail d'un utilisateur |
-| GET | /api/users/{id}/validate | ⭐ ENDPOINT CRITIQUE — utilisé par MS1 et MS2 |
+| POST | /api/utilisateurs | Créer un utilisateur / technicien |
+| GET | /api/utilisateurs | Lister tous les utilisateurs |
+| GET | /api/utilisateurs/{id} | Détail d'un utilisateur |
+| GET | /api/utilisateurs/{id}/validate | ⭐ ENDPOINT CRITIQUE — utilisé par MS1 et MS2 |
 | POST | /api/equipes | Créer une équipe |
 | GET | /api/equipes | Lister les équipes |
 | GET | /api/equipes/{id} | Détail d'une équipe |
@@ -367,7 +367,7 @@ Table `notifications` : id, type(ENUM), incident_id, destinataire_id, message, l
 
 **Communications sortantes :**
 ```
-MS5 → MS3 : GET http://ms3-utilisateurs:8083/api/users/{acteurId}
+MS5 → MS3 : GET http://ms3-utilisateurs:8083/api/utilisateurs/{acteurId}
              → Pour récupérer le nom de l'acteur et l'enrichir dans l'historique
 ```
 
@@ -381,7 +381,7 @@ MS1  →      —      —   /validate /exists  /events
 MS2  →   /{id}    —   /validate   —      /events
 MS3  →      —      —      —        —       —       (reçoit uniquement)
 MS4  →      —      —      —        —       —       (reçoit uniquement)
-MS5  →      —      —   /users/{id} —      —
+MS5  →      —      —   /utilisateurs/{id} —      —
 ```
 
 **Règle absolue :** Aucun service n'accède directement à la base d'un autre service.
@@ -456,7 +456,7 @@ services:
     build: ./ms3-utilisateurs
     ports: ["8083:8083"]
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db-users:3306/users_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-users:3306/utilisateurs_db
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
     depends_on: [db-users]
@@ -556,8 +556,8 @@ springdoc.swagger-ui.path=/swagger-ui.html
 ```
 Étape 1 — Setup (MS3 + MS4)
   POST :8083/api/equipes      → créer équipe "Support IT"
-  POST :8083/api/users        → créer utilisateur { nom: "Alice", role: "UTILISATEUR" }
-  POST :8083/api/users        → créer technicien { nom: "Bob", role: "TECHNICIEN" }
+  POST :8083/api/utilisateurs        → créer utilisateur { nom: "Alice", role: "UTILISATEUR" }
+  POST :8083/api/utilisateurs        → créer technicien { nom: "Bob", role: "TECHNICIEN" }
   POST :8084/api/categories   → créer catégorie "Réseau"
   POST :8084/api/equipements  → créer équipement { nom: "Switch-01", categorie: 1 }
 

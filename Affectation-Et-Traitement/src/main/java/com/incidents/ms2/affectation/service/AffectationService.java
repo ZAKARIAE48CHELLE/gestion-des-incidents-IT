@@ -60,11 +60,16 @@ public class AffectationService {
 
         Affectation saved = repository.save(affectation);
 
-        // 4. Notify MS5 (non-blocking)
+        // 4. Update Incident status to AFFECTEE in MS1
+        incidentClient.updateIncidentToAffectee(saved.getIncidentId());
+
+        // 5. Notify MS5 (non-blocking)
         notificationClient.sendEvent(NotificationEvent.builder()
                 .type("AFFECTATION")
                 .incidentId(saved.getIncidentId())
                 .acteurId(saved.getTechnicienId())
+                .message("Vous avez été affecté à l'incident : " + saved.getIncidentTitre()
+                        + " (Affectation #" + saved.getId() + ")")
                 .build());
 
         return toResponse(saved);
