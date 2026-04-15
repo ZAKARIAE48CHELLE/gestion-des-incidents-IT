@@ -557,12 +557,16 @@
                 </select>
               </div>
               <div class="form-group" style="flex: 1;">
-                <label>Technicien ID (MS3)</label>
-                <input type="number" name="technicienId" class="form-control" required>
+                <label>Technicien (MS Users)</label>
+                <select name="technicienId" class="form-control" id="select-technicien" required>
+                  <option value="">Chargement...</option>
+                </select>
               </div>
               <div class="form-group" style="flex: 1;">
-                <label>Équipe ID (Optionnel)</label>
-                <input type="number" name="equipeId" class="form-control">
+                <label>Équipe (Optionnel)</label>
+                <select name="equipeId" class="form-control" id="select-equipe">
+                  <option value="">Aucune équipe</option>
+                </select>
               </div>
               <div class="form-group">
                 <button type="submit" class="btn btn-primary">Créer</button>
@@ -675,6 +679,33 @@
     }
 
     let incidentMap = {};
+    let technicienMap = {}; // id -> nom
+
+    async function loadUsers() {
+      try {
+        const users = await req(`/api/users`);
+        const techniciens = users.filter(u => u.role === 'TECHNICIEN');
+
+        const selTech = $("#select-technicien");
+        selTech.innerHTML = '<option value="">-- Sélectionner un technicien --</option>';
+
+        techniciens.forEach(u => {
+          technicienMap[u.id] = u.nom;
+          selTech.insertAdjacentHTML('beforeend', `<option value="${u.id}">${u.nom}</option>`);
+        });
+
+        // Equipes: users with any equipeId set
+        const equipes = [...new Set(users.filter(u => u.equipeId).map(u => u.equipeId))];
+        const selEq = $("#select-equipe");
+        selEq.innerHTML = '<option value="">Aucune équipe</option>';
+        equipes.forEach(eqId => {
+          selEq.insertAdjacentHTML('beforeend', `<option value="${eqId}">Équipe ${eqId}</option>`);
+        });
+      } catch (err) {
+        console.error('Erreur chargement utilisateurs:', err);
+        $("#select-technicien").innerHTML = '<option value="">Erreur MS Users</option>';
+      }
+    }
 
     async function loadIncidents() {
       try {
@@ -758,7 +789,7 @@
           <td style="font-weight:600; color: var(--color-info);">#${item.id}</td>
           <td><strong>${item.incidentTitre || incidentMap[item.incidentId] || ('Panne N°' + item.incidentId)}</strong></td>
           <td>${item.equipementId ? 'Eqp-' + item.equipementId : '-'}</td>
-          <td>Tech-${item.technicienId}</td>
+          <td>${technicienMap[item.technicienId] || 'Tech-' + item.technicienId}</td>
           <td>${item.equipeId ? 'Eq-' + item.equipeId : '-'}</td>
           <td style="color:var(--text-mut);">${fmt(item.dateAffectation)}</td>
           <td><span class="status-pill status-${item.statut.toLowerCase()}">${item.statut.replace('_', ' ')}</span></td>
@@ -845,7 +876,7 @@
             <div style="background:#f1f5f9;padding:12px;border-radius:6px;border:1px solid #cbd5e1;white-space:pre-wrap;color:#334155;font-family:monospace;font-size:0.85rem;">${item.description || '-'}</div>
           </div>
           <hr style="border:0;border-top:1px solid var(--border);margin:16px 0;">
-          <div class="detail-row"><span class="detail-label">Technicien:</span> <span class="detail-value">Tech-${item.technicienId}</span></div>
+          <div class="detail-row"><span class="detail-label">Technicien:</span> <span class="detail-value">${technicienMap[item.technicienId] || 'Tech-' + item.technicienId}</span></div>
           <div class="detail-row"><span class="detail-label">Équipe (MS3):</span> <span class="detail-value">${item.equipeId ? 'Eq-' + item.equipeId : '-'}</span></div>
           <div class="detail-row"><span class="detail-label">Date Affectation:</span> <span class="detail-value">${fmt(item.dateAffectation)}</span></div>
           <div class="detail-row"><span class="detail-label">Date Fin:</span> <span class="detail-value">${fmt(item.dateFin)}</span></div>
@@ -935,7 +966,7 @@
         res.innerHTML = items.sort((a, b) => a.id - b.id).map(i =>
           `<div style="padding:6px 0;border-bottom:1px solid var(--border);">
             <strong>#${i.id}</strong> — <span class="status-pill status-${i.statut.toLowerCase()}" style="font-size:0.65rem;padding:2px 8px;">${i.statut.replace('_', ' ')}</span>
-            <span style="margin-left:8px;">Tech-${i.technicienId}</span>
+            <span style="margin-left:8px;">${technicienMap[i.technicienId] || 'Tech-' + i.technicienId}</span>
           </div>`
         ).join("");
       } catch (err) {
@@ -945,9 +976,10 @@
 
     // Init
     document.addEventListener("DOMContentLoaded", () => {
+      loadUsers();
       loadIncidents().then(() => loadData());
       setTime();
-      setInterval(setTime, 60000); // update clock every minute
+      setInterval(setTime, 60000);
     });
   </script>
 </body>

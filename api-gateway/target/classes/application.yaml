@@ -28,7 +28,12 @@ spring:
           predicates:
             - Path=/api/affectations/**
             
-        - id: ms3-techniciens
-          uri: http://localhost:8083 # MS3 futur/existant
+        - id: ms3-users
+          uri: https://doorstep-bobsled-nutrient.ngrok-free.dev # MS Users (techniciens/equipes)
           predicates:
-            - Path=/api/techniciens/**
+            - Path=/api/users/**
+
+        - id: ms4-notifications
+          uri: https://knapsack-cesspool-gangly.ngrok-free.dev # MS Notifications
+          predicates:
+            - Path=/api/notifications/**
