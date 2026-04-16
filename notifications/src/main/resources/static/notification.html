@@ -73,9 +73,10 @@
         tr:hover td { background: #f8f9fa; }
 
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; text-transform: uppercase; }
-        .badge-info { background: #cce5ff; color: #004085; }
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-technician { background: #d0e1ff; color: #004085; }
+        .badge-incident { background: #ffdada; color: #a30000; }
+        .badge-equipement { background: #d4f8d4; color: #155724; }
+        .badge-default { background: #eee; color: #333; }
     </style>
 </head>
 <body>
@@ -94,14 +95,14 @@
 <div class="container">
     <div class="stats-grid">
         <div class="stat-card total"><div class="stat-label">Total Notifications</div><div class="stat-value" id="statTotal">0</div></div>
-        <div class="stat-card blue"><div class="stat-label">Créations</div><div class="stat-value" id="statCreated">0</div></div>
-        <div class="stat-card green"><div class="stat-label">Clôtures</div><div class="stat-value" id="statClosed">0</div></div>
-        <div class="stat-card purple"><div class="stat-label">Autres</div><div class="stat-value" id="statAssigned">0</div></div>
+        <div class="stat-card blue"><div class="stat-label">Incidents</div><div class="stat-value" id="statIncident">0</div></div>
+        <div class="stat-card green"><div class="stat-label">Équipements</div><div class="stat-value" id="statEquipement">0</div></div>
+        <div class="stat-card purple"><div class="stat-label">Techniciens</div><div class="stat-value" id="statTechnician">0</div></div>
     </div>
 
     <div class="charts-grid">
         <div class="chart-card">
-            <div class="chart-title">Types d'Événements</div>
+            <div class="chart-title">Répartition par Type</div>
             <div style="position:relative;height:220px;"><canvas id="notifDonut"></canvas></div>
         </div>
         <div class="chart-card">
@@ -111,15 +112,16 @@
     </div>
 
     <div class="table-card">
-        <div style="padding-bottom: 15px; font-weight: 600; color: #1a3a5c;">Historique Récent</div>
+        <div style="padding-bottom: 15px; font-weight: 600; color: #1a3a5c;">Historique Complet des Événements</div>
         <table id="notifTable">
             <thead>
                 <tr>
                     <th>Date & Heure</th>
-                    <th>Action</th>
-                    <th>ID Incident</th>
-                    <th>Source</th>
-                    <th>Détails</th>
+                    <th>Type</th>
+                    <th>Objet</th>
+                    <th>Incident</th>
+                    <th>Technicien</th>
+                    <th>Message / Détails</th>
                 </tr>
             </thead>
             <tbody id="notifBody"></tbody>
@@ -141,70 +143,75 @@ async function loadAll() {
         // 1. Détection de nouvelle notification
         if (lastCount !== -1 && notifications.length > lastCount) {
             const lastNotif = notifications[notifications.length - 1];
-            alert(`📢 NOUVELLE ALERTE !\nAction: ${lastNotif.action || lastNotif.statut}\nIncident: #${lastNotif.incidentId || lastNotif.incident_id}`);
+            const msg = lastNotif.objetNotification || lastNotif.messageNotification || "Nouvelle mise à jour";
+            alert(`📢 NOUVELLE ALERTE !\nObjet: ${msg}`);
         }
         lastCount = notifications.length;
 
         // 2. Mise à jour du tableau
         notifications.sort((a, b) => new Date(b.dateAction) - new Date(a.dateAction));
         const tbody = document.getElementById('notifBody');
+        
         tbody.innerHTML = notifications.map(n => {
-            const action = n.action || n.statut || 'AUTRE';
-            const incidentId = n.incidentId || n.incident_id || '—';
-            const details = n.details || n.note_cloture || 'Aucun détail';
+            const type = n.typeNotification || 'Autre';
+            const incident = n.incidentId ? `#${n.incidentId}` : '—';
+            const tech = n.technicianId ? `ID:${n.technicianId}` : '—';
+            const objet = n.objetNotification || n.action || n.statut || 'Sans objet';
+            const message = n.messageNotification || n.details || n.note_cloture || 'Aucun détail';
             
             return `
                 <tr>
                     <td>${n.dateAction ? new Date(n.dateAction).toLocaleString('fr-FR') : 'Date inconnue'}</td>
-                    <td><span class="badge ${getBadgeClass(action)}">${action}</span></td>
-                    <td>#${incidentId}</td>
-                    <td><strong>Système</strong></td>
-                    <td>${details}</td>
+                    <td><span class="badge ${getBadgeClass(type)}">${type}</span></td>
+                    <td><strong>${objet}</strong></td>
+                    <td>${incident}</td>
+                    <td>${tech}</td>
+                    <td>${message}</td>
                 </tr>
             `;
         }).join('');
 
-        // 3. Stats
+        // 3. Calcul des Statistiques pour les microservices
         const stats = {
             total: notifications.length,
-            created: notifications.filter(n => (n.action || n.statut || "").includes('CREAT')).length,
-            closed: notifications.filter(n => (n.action || n.statut || "").includes('CLOT')).length,
-            other: 0
+            incident: notifications.filter(n => (n.typeNotification || "").toLowerCase().includes('incid')).length,
+            equipement: notifications.filter(n => (n.typeNotification || "").toLowerCase().includes('equip')).length,
+            technician: notifications.filter(n => (n.typeNotification || "").toLowerCase().includes('tech')).length
         };
-        stats.other = stats.total - (stats.created + stats.closed);
 
         document.getElementById('statTotal').innerText = stats.total;
-        document.getElementById('statCreated').innerText = stats.created;
-        document.getElementById('statClosed').innerText = stats.closed;
-        document.getElementById('statAssigned').innerText = stats.other;
-        document.getElementById('lastUpdate').innerText = "Dernier refresh : " + new Date().toLocaleTimeString();
+        document.getElementById('statIncident').innerText = stats.incident;
+        document.getElementById('statEquipement').innerText = stats.equipement;
+        document.getElementById('statTechnician').innerText = stats.technician;
+        document.getElementById('lastUpdate').innerText = "Dernière mise à jour : " + new Date().toLocaleTimeString();
 
         updateCharts(stats);
 
     } catch (error) {
-        console.error("Erreur API:", error);
+        console.error("Erreur de connexion au microservice MS5:", error);
     }
 }
 
-function getBadgeClass(action) {
-    if (!action) return 'badge-warning';
-    const a = action.toUpperCase();
-    if (a.includes('CREAT')) return 'badge-info';
-    if (a.includes('CLOT')) return 'badge-success';
-    return 'badge-warning';
+function getBadgeClass(type) {
+    if (!type) return 'badge-default';
+    const t = type.toLowerCase();
+    if (t.includes('tech')) return 'badge-technician';
+    if (t.includes('incid')) return 'badge-incident';
+    if (t.includes('equip')) return 'badge-equipement';
+    return 'badge-default';
 }
 
 function updateCharts(stats) {
-    // Donut Chart
+    // Donut Chart (Répartition)
     const donutCtx = document.getElementById('notifDonut');
     if (donutChart) donutChart.destroy();
     donutChart = new Chart(donutCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Créations', 'Clôtures', 'Autres'],
+            labels: ['Incidents', 'Équipements', 'Techniciens'],
             datasets: [{
-                data: [stats.created, stats.closed, stats.other],
-                backgroundColor: ['#007bff', '#28a745', '#6f42c1']
+                data: [stats.incident, stats.equipement, stats.technician],
+                backgroundColor: ['#ff4d4d', '#28a745', '#007bff']
             }]
         },
         options: { 
@@ -213,7 +220,7 @@ function updateCharts(stats) {
         }
     });
 
-    // Bar Chart
+    // Bar Chart (Activité simplifiée)
     const barCtx = document.getElementById('activityBar');
     if (barChart) barChart.destroy();
     barChart = new Chart(barCtx, {
@@ -221,7 +228,7 @@ function updateCharts(stats) {
         data: {
             labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
             datasets: [{
-                label: 'Volume de notifications',
+                label: 'Notifications reçues',
                 data: [0, 0, 0, 0, 0, 0, stats.total],
                 backgroundColor: '#1a3a5c'
             }]
@@ -233,6 +240,7 @@ function updateCharts(stats) {
     });
 }
 
+// Lancement automatique
 loadAll();
 setInterval(loadAll, 5000); 
 </script>

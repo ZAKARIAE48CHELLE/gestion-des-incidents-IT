@@ -13,6 +13,18 @@ public class Historique {
     @JsonProperty("incident_id")
     private Long incidentId;
 
+    @JsonProperty("technician_id") 
+    private Long technicianId;
+
+    @JsonProperty("type_notification") 
+    private String typeNotification; // technician | incident | equipement
+
+    @JsonProperty("message_notification") 
+    private String messageNotification;
+
+    @JsonProperty("objet_notification") 
+    private String objetNotification;
+
     @JsonProperty("statut")
     private String action; 
 
@@ -21,15 +33,26 @@ public class Historique {
 
     private LocalDateTime dateAction = LocalDateTime.now();
 
-    // Constructeur vide
     public Historique() {}
 
-    // --- GETTERS ET SETTERS MANUELS (Pour supprimer le rouge) ---
+    // --- GETTERS ET SETTERS (Indispensables pour corriger les erreurs de compilation) ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public Long getIncidentId() { return incidentId; }
     public void setIncidentId(Long incidentId) { this.incidentId = incidentId; }
+
+    public Long getTechnicianId() { return technicianId; }
+    public void setTechnicianId(Long technicianId) { this.technicianId = technicianId; }
+
+    public String getTypeNotification() { return typeNotification; }
+    public void setTypeNotification(String typeNotification) { this.typeNotification = typeNotification; }
+
+    public String getMessageNotification() { return messageNotification; }
+    public void setMessageNotification(String messageNotification) { this.messageNotification = messageNotification; }
+
+    public String getObjetNotification() { return objetNotification; }
+    public void setObjetNotification(String objetNotification) { this.objetNotification = objetNotification; }
 
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }

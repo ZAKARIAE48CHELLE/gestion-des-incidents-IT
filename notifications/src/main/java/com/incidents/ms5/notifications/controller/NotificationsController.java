@@ -21,11 +21,6 @@ public class NotificationsController {
 
     @PostMapping("/events")
     public Historique recevoirEvenement(@RequestBody Historique event) {
-        // On passe les données au service qui va les sauvegarder
-        return service.enregistrerAction(
-            event.getIncidentId(), 
-            event.getAction(), 
-            event.getDetails()
-        );
+        return service.enregistrerAction(event);
     }
 }
