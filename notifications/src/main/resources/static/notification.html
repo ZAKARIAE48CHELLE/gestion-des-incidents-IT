@@ -6,10 +6,11 @@
     <title>MS5 — Centre de Notifications & Historique</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <style>
-        /* Base Style */
+        /* --- Styles de Base --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #333; }
 
+        /* --- Barre de Navigation --- */
         .navbar {
             background: #1a3a5c;
             color: white;
@@ -17,6 +18,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .navbar h1 { font-size: 20px; font-weight: 600; }
         .navbar span { font-size: 13px; opacity: 0.7; }
@@ -29,12 +31,13 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 13px;
-            transition: 0.3s;
+            transition: 0.3s ease;
         }
         .btn-refresh:hover { background: rgba(255,255,255,0.25); }
 
         .container { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
 
+        /* --- Grille de Statistiques --- */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -49,13 +52,14 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .stat-card.total { border-left-color: #1a3a5c; }
-        .stat-card.blue { border-left-color: #007bff; }
-        .stat-card.green { border-left-color: #28a745; }
-        .stat-card.purple { border-left-color: #6f42c1; }
+        .stat-card.blue { border-left-color: #ff4d4d; } /* Couleur Incidents */
+        .stat-card.green { border-left-color: #28a745; } /* Couleur Equipements */
+        .stat-card.purple { border-left-color: #007bff; } /* Couleur Techniciens */
         
-        .stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .stat-value { font-size: 36px; font-weight: 700; color: #1a3a5c; }
+        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+        .stat-value { font-size: 32px; font-weight: 700; color: #1a3a5c; }
 
+        /* --- Graphiques --- */
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -65,13 +69,17 @@
         .chart-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .chart-title { font-size: 15px; font-weight: 600; color: #1a3a5c; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
 
+        /* --- Tableau Historique --- */
         .table-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .table-title { font-weight: 600; color: #1a3a5c; }
         
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th { background: #f8f9fa; padding: 10px 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #eee; text-transform: uppercase; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #eee; text-transform: uppercase; }
         td { padding: 12px; border-bottom: 1px solid #f0f0f0; color: #444; }
         tr:hover td { background: #f8f9fa; }
 
+        /* --- Badges --- */
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; text-transform: uppercase; }
         .badge-technician { background: #d0e1ff; color: #004085; }
         .badge-incident { background: #ffdada; color: #a30000; }
@@ -112,19 +120,22 @@
     </div>
 
     <div class="table-card">
-        <div style="padding-bottom: 15px; font-weight: 600; color: #1a3a5c;">Historique Complet des Événements</div>
+        <div class="table-header-flex">
+            <div class="table-title">Historique Complet des Événements</div>
+        </div>
         <table id="notifTable">
             <thead>
                 <tr>
                     <th>Date & Heure</th>
                     <th>Type</th>
                     <th>Objet</th>
-                    <th>Incident</th>
-                    <th>Technicien</th>
+                    <th>ID Incident</th>
+                    <th>ID Technicien</th>
                     <th>Message / Détails</th>
                 </tr>
             </thead>
-            <tbody id="notifBody"></tbody>
+            <tbody id="notifBody">
+                </tbody>
         </table>
     </div>
 </div>
@@ -138,40 +149,42 @@ let lastCount = -1;
 async function loadAll() {
     try {
         const response = await fetch(`${API_BASE}/api/notifications`);
+        if (!response.ok) throw new Error("Erreur serveur");
+        
         const notifications = await response.json();
         
-        // 1. Détection de nouvelle notification
+        // 1. Alerte si nouvelle notification
         if (lastCount !== -1 && notifications.length > lastCount) {
             const lastNotif = notifications[notifications.length - 1];
-            const msg = lastNotif.objetNotification || lastNotif.messageNotification || "Nouvelle mise à jour";
-            alert(`📢 NOUVELLE ALERTE !\nObjet: ${msg}`);
+            const msg = lastNotif.objetNotification || "Nouvel événement reçu";
+            alert(`📢 NOUVELLE ALERTE !\n${msg}`);
         }
         lastCount = notifications.length;
 
-        // 2. Mise à jour du tableau
+        // 2. Mise à jour du tableau (Tri du plus récent au plus ancien)
         notifications.sort((a, b) => new Date(b.dateAction) - new Date(a.dateAction));
         const tbody = document.getElementById('notifBody');
         
         tbody.innerHTML = notifications.map(n => {
             const type = n.typeNotification || 'Autre';
-            const incident = n.incidentId ? `#${n.incidentId}` : '—';
-            const tech = n.technicianId ? `ID:${n.technicianId}` : '—';
+            const incident = n.incidentId || n.incident_id || '—';
+            const tech = n.technicianId || n.technician_id || '—';
             const objet = n.objetNotification || n.action || n.statut || 'Sans objet';
-            const message = n.messageNotification || n.details || n.note_cloture || 'Aucun détail';
+            const message = n.messageNotification || n.details || n.note_cloture || '...';
             
             return `
                 <tr>
-                    <td>${n.dateAction ? new Date(n.dateAction).toLocaleString('fr-FR') : 'Date inconnue'}</td>
+                    <td>${n.dateAction ? new Date(n.dateAction).toLocaleString('fr-FR') : '—'}</td>
                     <td><span class="badge ${getBadgeClass(type)}">${type}</span></td>
                     <td><strong>${objet}</strong></td>
-                    <td>${incident}</td>
-                    <td>${tech}</td>
+                    <td>#${incident}</td>
+                    <td>${tech !== '—' ? 'ID:' + tech : '—'}</td>
                     <td>${message}</td>
                 </tr>
             `;
         }).join('');
 
-        // 3. Calcul des Statistiques pour les microservices
+        // 3. Calcul et Mise à jour des Statistiques
         const stats = {
             total: notifications.length,
             incident: notifications.filter(n => (n.typeNotification || "").toLowerCase().includes('incid')).length,
@@ -183,15 +196,16 @@ async function loadAll() {
         document.getElementById('statIncident').innerText = stats.incident;
         document.getElementById('statEquipement').innerText = stats.equipement;
         document.getElementById('statTechnician').innerText = stats.technician;
-        document.getElementById('lastUpdate').innerText = "Dernière mise à jour : " + new Date().toLocaleTimeString();
+        document.getElementById('lastUpdate').innerText = "Dernière MAJ : " + new Date().toLocaleTimeString();
 
         updateCharts(stats);
 
     } catch (error) {
-        console.error("Erreur de connexion au microservice MS5:", error);
+        console.error("Erreur de connexion MS5:", error);
     }
 }
 
+// Détermine la couleur du badge selon le type
 function getBadgeClass(type) {
     if (!type) return 'badge-default';
     const t = type.toLowerCase();
@@ -201,8 +215,9 @@ function getBadgeClass(type) {
     return 'badge-default';
 }
 
+// Mise à jour des graphiques Chart.js
 function updateCharts(stats) {
-    // Donut Chart (Répartition)
+    // Graphique Donut
     const donutCtx = document.getElementById('notifDonut');
     if (donutChart) donutChart.destroy();
     donutChart = new Chart(donutCtx, {
@@ -211,16 +226,17 @@ function updateCharts(stats) {
             labels: ['Incidents', 'Équipements', 'Techniciens'],
             datasets: [{
                 data: [stats.incident, stats.equipement, stats.technician],
-                backgroundColor: ['#ff4d4d', '#28a745', '#007bff']
+                backgroundColor: ['#ff4d4d', '#28a745', '#007bff'],
+                borderWidth: 2
             }]
         },
         options: { 
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom' } }
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }
         }
     });
 
-    // Bar Chart (Activité simplifiée)
+    // Graphique à Barres
     const barCtx = document.getElementById('activityBar');
     if (barChart) barChart.destroy();
     barChart = new Chart(barCtx, {
@@ -228,9 +244,10 @@ function updateCharts(stats) {
         data: {
             labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
             datasets: [{
-                label: 'Notifications reçues',
-                data: [0, 0, 0, 0, 0, 0, stats.total],
-                backgroundColor: '#1a3a5c'
+                label: 'Volume de notifications',
+                data: [0, 0, 0, 0, 0, 0, stats.total], // Exemple statique sur Dimanche
+                backgroundColor: '#1a3a5c',
+                borderRadius: 4
             }]
         },
         options: { 
@@ -240,7 +257,7 @@ function updateCharts(stats) {
     });
 }
 
-// Lancement automatique
+// Initialisation et rafraîchissement automatique toutes les 5 secondes
 loadAll();
 setInterval(loadAll, 5000); 
 </script>
