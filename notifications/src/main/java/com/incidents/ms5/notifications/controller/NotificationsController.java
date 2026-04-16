@@ -8,21 +8,24 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
+@CrossOrigin(origins = "*") 
 public class NotificationsController {
 
     @Autowired
     private NotificationsService service;
 
-    @PostMapping("/event")
-    public Historique recevoirEvenement(
-            @RequestParam Long incidentId, 
-            @RequestParam String action, 
-            @RequestParam String details) {
-        return service.enregistrerAction(incidentId, action, details);
+    @GetMapping
+    public List<Historique> getAll() {
+        return service.getAll();
     }
 
-    @GetMapping("/historique/{incidentId}")
-    public List<Historique> voirHistorique(@PathVariable Long incidentId) {
-        return service.getHistoriqueParIncident(incidentId);
+    @PostMapping("/events")
+    public Historique recevoirEvenement(@RequestBody Historique event) {
+        // On passe les données au service qui va les sauvegarder
+        return service.enregistrerAction(
+            event.getIncidentId(), 
+            event.getAction(), 
+            event.getDetails()
+        );
     }
 }
