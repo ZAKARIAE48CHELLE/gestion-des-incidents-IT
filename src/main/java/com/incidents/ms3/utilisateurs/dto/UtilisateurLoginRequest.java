@@ -1,0 +1,19 @@
+package com.incidents.ms3.utilisateurs.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+public class UtilisateurLoginRequest {
+
+    @NotBlank(message = "L'email est obligatoire")
+    @Email(message = "L'email doit etre valide")
+    private String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace utilisateur</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+</head>
+<body class="dashboard-body">
+<main class="dashboard-shell">
+    <section class="dashboard-hero dashboard-hero-user">
+        <a class="back-link" href="/login.html">Retour a la connexion</a>
+        <p class="kicker">ESPACE UTILISATEUR</p>
+        <h1 id="userName">Chargement du profil...</h1>
+        <p id="userIntro" class="lead">Preparation des informations utilisateur.</p>
+        <div class="hero-badges">
+            <span id="userRole">Role en attente</span>
+            <span id="userTeamBadge">Equipe en attente</span>
+        </div>
+    </section>
+
+    <section class="dashboard-grid">
+        <article class="dashboard-card">
+            <p class="card-label">Profil</p>
+            <dl id="userDetails" class="detail-grid"></dl>
+        </article>
+
+        <article class="dashboard-card accent-card">
+            <p class="card-label">Acces rapide</p>
+            <div class="action-list">
+                <a href="/swagger-ui.html">Consulter les APIs</a>
+                <a id="teamLink" href="/equipe.html">Ouvrir l'espace equipe</a>
+            </div>
+        </article>
+
+        <article class="dashboard-card wide-card">
+            <p class="card-label">Equipe rattachee</p>
+            <div id="teamSummary" class="summary-panel">
+                <h2>Aucune equipe associee</h2>
+                <p>Ce profil n'est rattache a aucune equipe pour le moment.</p>
+            </div>
+        </article>
+    </section>
+</main>
+<script src="/js/utilisateur-dashboard.js"></script>
+</body>
+</html>

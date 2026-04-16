@@ -34,8 +34,21 @@ public class UtilisateursService {
         return toDto(utilisateur);
     }
 
+    public List<UtilisateurDto> getUtilisateursByEquipeId(Long equipeId) {
+        return utilisateursRepository.findAllByEquipeId(equipeId)
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
     public boolean existsById(Long id) {
         return utilisateursRepository.existsById(id);
+    }
+
+    public UtilisateurDto loginByEmail(String email) {
+        Utilisateur utilisateur = utilisateursRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Aucun utilisateur trouve avec l'email " + email));
+        return toDto(utilisateur);
     }
 
     public UtilisateurDto createUtilisateur(UtilisateurDto dto) {

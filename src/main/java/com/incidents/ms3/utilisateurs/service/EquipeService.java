@@ -33,6 +33,12 @@ public class EquipeService {
         return equipeRepository.existsById(id);
     }
 
+    public EquipeDto loginByNom(String nom) {
+        Equipe equipe = equipeRepository.findByNomIgnoreCase(nom)
+                .orElseThrow(() -> new ResourceNotFoundException("Aucune equipe trouvee avec le nom " + nom));
+        return toDto(equipe);
+    }
+
     public EquipeDto createEquipe(EquipeDto dto) {
         Equipe equipe = toEntity(dto);
         return toDto(equipeRepository.save(equipe));

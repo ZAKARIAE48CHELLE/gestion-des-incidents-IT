@@ -1,0 +1,49 @@
+git add src/main/resources/static/login.htmlgit add src/main/resources/static/login.htmlgit add src/main/resources/static/login.html<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace equipe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+</head>
+<body class="dashboard-body">
+<main class="dashboard-shell">
+    <section class="dashboard-hero dashboard-hero-team">
+        <a class="back-link" href="/login.html">Retour a la connexion</a>
+        <p class="kicker">ESPACE EQUIPE</p>
+        <h1 id="teamName">Chargement de l'equipe...</h1>
+        <p id="teamIntro" class="lead">Recuperation de la fiche equipe et des membres rattaches.</p>
+        <div class="hero-badges">
+            <span id="teamResponsableBadge">Responsable en attente</span>
+            <span id="teamMembersBadge">Membres en attente</span>
+        </div>
+    </section>
+
+    <section class="dashboard-grid">
+        <article class="dashboard-card">
+            <p class="card-label">Fiche equipe</p>
+            <dl id="teamDetails" class="detail-grid"></dl>
+        </article>
+
+        <article class="dashboard-card accent-card">
+            <p class="card-label">Navigation</p>
+            <div class="action-list">
+                <a href="/swagger-ui.html">Consulter les APIs</a>
+                <a href="/login.html">Changer de session</a>
+            </div>
+        </article>
+
+        <article class="dashboard-card wide-card">
+            <p class="card-label">Membres de l'equipe</p>
+            <div id="membersList" class="member-list empty-state">
+                Chargement des membres...
+            </div>
+        </article>
+    </section>
+</main>
+<script src="/js/equipe-dashboard.js"></script>
+</body>
+</html>

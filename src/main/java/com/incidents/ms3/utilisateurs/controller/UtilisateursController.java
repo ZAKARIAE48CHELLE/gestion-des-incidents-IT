@@ -35,6 +35,11 @@ public class UtilisateursController {
         return ResponseEntity.ok(utilisateursService.getUtilisateurById(id));
     }
 
+    @GetMapping("/equipe/{equipeId}")
+    public ResponseEntity<List<UtilisateurDto>> getUtilisateursByEquipeId(@PathVariable Long equipeId) {
+        return ResponseEntity.ok(utilisateursService.getUtilisateursByEquipeId(equipeId));
+    }
+
     // ✅ KEY ENDPOINT — called by MS1 and MS2
     @GetMapping("/{id}/validate")
     public ResponseEntity<Map<String, Object>> validate(@PathVariable Long id) {
