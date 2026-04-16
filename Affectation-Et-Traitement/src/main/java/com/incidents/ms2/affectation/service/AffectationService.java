@@ -65,11 +65,12 @@ public class AffectationService {
 
         // 5. Notify MS5 (non-blocking)
         notificationClient.sendEvent(NotificationEvent.builder()
-                .type("AFFECTATION")
+                .typeNotification("technician")
                 .incidentId(saved.getIncidentId())
-                .acteurId(saved.getTechnicienId())
-                .message("Vous avez été affecté à l'incident : " + saved.getIncidentTitre()
-                        + " (Affectation #" + saved.getId() + ")")
+                .technicianId(saved.getTechnicienId())
+                .statut("ASSIGNATION")
+                .objetNotification("Assignation Technicien")
+                .messageNotification("Vous avez été affecté pour traiter l'incident majeur #" + saved.getIncidentId() + " : " + saved.getIncidentTitre() + ". Veuillez intervenir rapidement.")
                 .build());
 
         return toResponse(saved);
@@ -117,10 +118,12 @@ public class AffectationService {
         Affectation saved = repository.save(affectation);
 
         notificationClient.sendEvent(NotificationEvent.builder()
-                .type("MAJ_STATUT")
+                .typeNotification("technician")
                 .incidentId(saved.getIncidentId())
-                .acteurId(saved.getTechnicienId())
+                .technicianId(saved.getTechnicienId())
                 .statut(saved.getStatut().name())
+                .objetNotification("Mise à jour du statut")
+                .messageNotification("L'intervention sur l'incident #" + saved.getIncidentId() + " est passée au statut " + saved.getStatut().name() + ".")
                 .build());
 
         return toResponse(saved);
@@ -142,9 +145,12 @@ public class AffectationService {
         Affectation saved = repository.save(affectation);
 
         notificationClient.sendEvent(NotificationEvent.builder()
-                .type("CLOTURE")
+                .typeNotification("technician")
                 .incidentId(saved.getIncidentId())
-                .acteurId(saved.getTechnicienId())
+                .technicianId(saved.getTechnicienId())
+                .statut("CLOTURE")
+                .objetNotification("Clôture de l'intervention")
+                .messageNotification("Votre intervention sur l'incident #" + saved.getIncidentId() + " a été clôturée avec succès. " + (request.getNoteCloture() != null ? "Note : " + request.getNoteCloture() : ""))
                 .build());
 
         return toResponse(saved);

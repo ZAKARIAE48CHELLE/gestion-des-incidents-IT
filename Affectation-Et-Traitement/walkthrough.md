@@ -374,10 +374,10 @@ public class NotificationClient {
 
     public void sendEvent(NotificationEvent event) {
         try {
-            // POST http://localhost:8085/api/notifications/events
+            // POST http://localhost:8085/api/notifications
             // Body : { "type": "AFFECTATION", "incidentId": 1, "acteurId": 2 }
             restTemplate.postForObject(
-                ms5Url + "/api/notifications/events", 
+                ms5Url + "/api/notifications", 
                 event,       // ← Spring convertit l'objet Java en JSON automatiquement
                 Void.class   // ← On ne s'attend pas à une réponse utile
             );
@@ -531,7 +531,7 @@ public AffectationResponse create(AffectationRequest request) {
             .incidentId(saved.getIncidentId())   // quel incident
             .acteurId(saved.getTechnicienId())    // qui a été affecté
             .build());
-    //     └──── POST http://localhost:8085/api/notifications/events
+    //     └──── POST http://localhost:8085/api/notifications
     //           Body : { "type": "AFFECTATION", "incidentId": 1, "acteurId": 2 }
 
     return toResponse(saved);  // convertit l'entité en DTO de réponse

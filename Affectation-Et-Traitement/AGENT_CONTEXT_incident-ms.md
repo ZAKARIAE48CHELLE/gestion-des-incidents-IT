@@ -110,7 +110,7 @@ MS1 → MS4 : GET http://ms4-equipements:8084/api/equipements/{equipementId}/exi
              → Réponse : true / false
              → Si false : rejeter la création (400 Bad Request)
 
-MS1 → MS5 : POST http://ms5-notifications:8085/api/notifications/events
+MS1 → MS5 : POST http://ms5-notifications:8085/api/notifications
              → Body : { "type": "CREATION_INCIDENT", "incidentId": 42, "acteurId": 1 }
 ```
 
@@ -178,7 +178,7 @@ MS2 → MS1 : GET http://ms1-declaration:8081/api/incidents/{incidentId}
 MS2 → MS3 : GET http://ms3-utilisateurs:8083/api/utilisateurs/{technicienId}/validate
              → Vérifier que le technicien existe (même endpoint que MS1)
 
-MS2 → MS5 : POST http://ms5-notifications:8085/api/notifications/events
+MS2 → MS5 : POST http://ms5-notifications:8085/api/notifications
              → À chaque changement d'état :
                { "type": "AFFECTATION",   "incidentId": X, "acteurId": Y }
                { "type": "MAJ_STATUT",    "incidentId": X, "acteurId": Y, "statut": "EN_COURS" }
@@ -350,7 +350,7 @@ Table `notifications` : id, type(ENUM), incident_id, destinataire_id, message, l
 **Endpoints exposés :**
 | Méthode | URL | Description |
 |---|---|---|
-| POST | /api/notifications/events | ⭐ ENDPOINT CRITIQUE — reçoit événements de MS1/MS2 |
+| POST | /api/notifications | ⭐ ENDPOINT CRITIQUE — reçoit événements de MS1/MS2 |
 | GET | /api/historique | Historique global de toutes les actions |
 | GET | /api/historique/incident/{id} | Historique complet d'un incident |
 | GET | /api/notifications/user/{userId} | Notifications d'un utilisateur |

@@ -37,3 +37,8 @@ spring:
           uri: https://knapsack-cesspool-gangly.ngrok-free.dev # MS Notifications
           predicates:
             - Path=/api/notifications/**
+            
+        - id: ms-equipements
+          uri: https://shemika-flutiest-absolutistically.ngrok-free.dev
+          predicates:
+            - Path=/api/equipements/**, /api/categories/**

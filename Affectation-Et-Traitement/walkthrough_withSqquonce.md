@@ -238,7 +238,7 @@ AffectationResponse.builder()
 
 #### [NotificationEvent.java](file:///d:/EMSI/S8/System%20distri/Projet/gestion-des-incidents-IT/Affectation-Et-Traitement/src/main/java/com/incidents/ms2/affectation/dto/NotificationEvent.java)
 
-> Ce qu'on envoie à MS5 via `POST /api/notifications/events` :
+> Ce qu'on envoie à MS5 via `POST /api/notifications` :
 
 ```json
 {

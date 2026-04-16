@@ -39,6 +39,6 @@ springdoc:
 
 app:
   simulation:
-    enabled: true
+    enabled: false
     # incident-ids: 1,2,3,7,42
     technician-ids: 2,3,5,8

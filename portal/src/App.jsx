@@ -9,6 +9,8 @@ import Affectations from './pages/Affectations'
 import MesAffectations from './pages/MesAffectations'
 import Notifications from './pages/Notifications'
 import Users from './pages/users'
+import Equipements from './pages/Equipements'
+import Equipes from './pages/Equipes'
 import './index.css'
 
 export default function App() {
@@ -24,7 +26,9 @@ export default function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="incidents" element={<Incidents />} />
             <Route path="affectations" element={<Affectations />} />
-            <Route path="users" element={<Users />} />
+            <Route path="equipements" element={<Equipements />} />
+            <Route path="utilisateurs" element={<Users />} />
+            <Route path="equipes" element={<Equipes />} />
           </Route>
 
           {/* Technicien Routes */}

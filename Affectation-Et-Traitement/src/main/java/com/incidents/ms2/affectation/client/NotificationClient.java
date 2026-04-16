@@ -32,9 +32,9 @@ public class NotificationClient {
         }
 
         try {
-            restTemplate.postForObject(ms5Url + "/api/notifications/events", event, Void.class);
+            restTemplate.postForObject(ms5Url + "/api/notifications", event, Void.class);
         } catch (Exception e) {
-            System.err.println("[MS2] Échec envoi notification MS5 — type=" + event.getType()
+            System.err.println("[MS2] Échec envoi notification MS5 — type=" + event.getTypeNotification()
                 + " | " + e.getMessage());
         }
     }

@@ -1287,7 +1287,7 @@
         comms: [
           { dir: '→', target: 'MS3 :8083', desc: 'GET /api/utilisateurs/{id}/validate — Vérifier que le demandeur existe', color: 'var(--ms3)' },
           { dir: '→', target: 'MS4 :8084', desc: 'GET /api/equipements/{id}/exists — Vérifier l\'équipement', color: 'var(--ms4)' },
-          { dir: '→', target: 'MS5 :8085', desc: 'POST /api/notifications/events — Événement création incident', color: 'var(--ms5)' },
+          { dir: '→', target: 'MS5 :8085', desc: 'POST /api/notifications — Événement création incident', color: 'var(--ms5)' },
         ],
         code: {
           filename: 'Incident.java',
@@ -1355,7 +1355,7 @@
         comms: [
           { dir: '→', target: 'MS1 :8081', desc: 'GET /api/incidents/{id} — Récupérer les infos de l\'incident avant affectation', color: 'var(--ms1)' },
           { dir: '→', target: 'MS3 :8083', desc: 'GET /api/utilisateurs/{id}/validate — Vérifier le technicien assigné', color: 'var(--ms3)' },
-          { dir: '→', target: 'MS5 :8085', desc: 'POST /api/notifications/events — Événements : affectation, changement état, clôture', color: 'var(--ms5)' },
+          { dir: '→', target: 'MS5 :8085', desc: 'POST /api/notifications — Événements : affectation, changement état, clôture', color: 'var(--ms5)' },
         ],
         code: {
           filename: 'Affectation.java',
@@ -1544,7 +1544,7 @@
         module: 'ms5-notifications',
         pkg: 'notifications',
         endpoints: [
-          { m: 'POST', p: '/api/notifications/events', d: 'Recevoir un événement (appelé par MS1/MS2)' },
+          { m: 'POST', p: '/api/notifications', d: 'Recevoir un événement (appelé par MS1/MS2)' },
           { m: 'GET', p: '/api/historique', d: 'Historique global de toutes les actions' },
           { m: 'GET', p: '/api/historique/incident/{id}', d: 'Historique complet d\'un incident' },
           { m: 'GET', p: '/api/notifications/user/{userId}', d: 'Notifications d\'un utilisateur' },

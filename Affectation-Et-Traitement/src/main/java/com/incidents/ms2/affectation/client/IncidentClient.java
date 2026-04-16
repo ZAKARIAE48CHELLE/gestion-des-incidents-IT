@@ -39,7 +39,9 @@ public class IncidentClient {
                     IncidentDto.class
             );
             return response.getBody();
-        } catch (ResourceAccessException e) {
+        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+            return null; // Incident not found or Ngrok missing
+        } catch (ResourceAccessException | org.springframework.web.client.HttpServerErrorException e) {
             throw new ServiceUnavailableException("MS1 (Déclaration) indisponible — réessayer plus tard");
         }
     }

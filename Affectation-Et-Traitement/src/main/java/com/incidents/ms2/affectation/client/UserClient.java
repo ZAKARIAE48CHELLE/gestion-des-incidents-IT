@@ -34,7 +34,12 @@ public class UserClient {
                 ms3Url + "/api/utilisateurs/" + userId + "/validate",
                 ValidationResponse.class
             );
-        } catch (ResourceAccessException e) {
+        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+            ValidationResponse res = new ValidationResponse();
+            res.setId(userId);
+            res.setExists(false); // Does not exist or Ngrok is down returning 404
+            return res;
+        } catch (ResourceAccessException | org.springframework.web.client.HttpServerErrorException e) {
             throw new ServiceUnavailableException("MS3 (Utilisateurs) indisponible — réessayer plus tard");
         }
     }
