@@ -1,0 +1,107 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background:
+    linear-gradient(135deg, rgba(245,247,251,0.82), rgba(235,247,246,0.86)),
+    url("../assets/hero.png") center / cover;
+}
+
+.card {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(255,255,255,0.82);
+  border-radius: 12px;
+  padding: 44px 38px;
+  width: 100%;
+  max-width: 430px;
+  box-shadow: 0 26px 72px rgba(35, 44, 71, 0.18);
+  backdrop-filter: blur(16px);
+}
+
+.logo { text-align: center; margin-bottom: 32px; }
+.logoIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #edf0ff, #e6fbf8);
+  color: #405cf5;
+  font-size: 1.9rem;
+  box-shadow: inset 0 0 0 1px rgba(64,92,245,0.14);
+}
+.logo h1 { margin: 0; font-size: 1.42rem; color: #111827; letter-spacing: 0; }
+.logo p  { margin: 8px 0 0 0; font-size: 0.9rem; color: #64748b; }
+
+.form { display: flex; flex-direction: column; gap: 16px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.85rem; font-weight: 700; color: #1f2937; }
+.field input {
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus {
+  outline: none;
+  border-color: #405cf5;
+  box-shadow: 0 0 0 4px rgba(64,92,245,0.13);
+}
+
+.btn {
+  padding: 13px;
+  background: linear-gradient(135deg, #405cf5, #2f8deb);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.95rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 12px 22px rgba(64,92,245,0.24);
+}
+.btn:hover:not(:disabled) { opacity: 0.96; transform: translateY(-1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  border: 1px solid #fecaca;
+}
+
+.defaults {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.8rem;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+.defaults code {
+  background: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: #405cf5;
+  font-weight: 600;
+  transition: background 0.15s;
+  border: 1px solid #e2e8f0;
+}
+.defaults code:hover { background: #e2e8f0; }
+
+@media (max-width: 520px) {
+  .page { padding: 18px; }
+  .card { padding: 34px 24px; }
+}
